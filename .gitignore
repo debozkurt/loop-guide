@@ -1,0 +1,25 @@
+# Python virtualenvs & caches (capstone harness may create these; never commit)
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+
+# Local runtime artifacts
+*.sqlite
+*.sqlite3
+*.db
+
+# OS / tooling
+.DS_Store
+.claude/

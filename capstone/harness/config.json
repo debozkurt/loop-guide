@@ -1,0 +1,22 @@
+{
+  "_comment": "The loop's contract. Every line is a pre-flight checklist item (Ch 18). CLI flags override these.",
+
+  "repo_dir": ".",
+  "prompt_file": "PROMPT.md",
+  "model": "claude-fable-5",
+
+  "agent_cmd": "claude -p --output-format stream-json --permission-mode acceptEdits --model {model}",
+  "gate_cmd": "./verify.sh",
+
+  "_three_hard_stops": "Ch 13 — none of these is optional",
+  "max_iter": 50,
+  "budget_usd": 20.0,
+  "no_progress_n": 3,
+
+  "_durability": "Ch 15 — commit each iteration; push for Level-3 (survives the machine)",
+  "commit": true,
+  "push": false,
+  "branch": "loop/work",
+
+  "_blast_radius": "Ch 16 — least privilege. acceptEdits not skip-permissions; branch-only; no prod creds."
+}
