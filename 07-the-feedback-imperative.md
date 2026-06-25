@@ -91,7 +91,7 @@ Chapter 6's `goal_met` (a bare exit-code check) becomes `verification_gate` retu
 
 ## Takeaway
 
-A loop is only as good as its feedback. Open-loop generation produces confident mistakes; closed-loop generation drives toward the target using an external error signal. The model cannot reliably grade its own homework, so the gate must be external (tests, compiler, a different model), end-to-end (reach the real goal, not a proxy), and wired so the failure becomes the next tick's input.
+A loop is only as good as its feedback. Open-loop generation produces confident mistakes; closed-loop generation drives toward the target using an external error signal. The model cannot reliably grade its own homework, so the gate must be external (tests, compiler, a different model), end-to-end (reach the real goal, not a proxy), and wired so the failure becomes the next tick's input — and *stable*: a gate that flips verdict on unchanged code corrupts every stop decision, so prove it's deterministic before you trust it as the loop's oracle (Chapter 9).
 
 ## Sources
 

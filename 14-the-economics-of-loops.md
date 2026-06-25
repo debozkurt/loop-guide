@@ -56,6 +56,8 @@ def roi_ok(cfg, value_of_outcome: float, your_review_hours: float, hourly: float
 
 `roi_ok` takes a minute and catches upside-down loops before they run: if `MAX × cost/tick` already exceeds what the outcome is worth, the loop is a money fire no matter how clever. Measure `avg_cost_per_tick` on a few real runs; loops vary 10×+ by task.
 
+`roi_ok` is the *before* estimate; the *after* metric is **cost per accepted change** — total spend divided by the changes that actually cleared your held-out gate. Not tokens spent, not tasks attempted, not loops scheduled; all three flatter you. It's the honest unit cost of a *trustworthy* result: spend $40 across ten runs and have two clear the gate, and each shipped change cost $20 — the other eight runs were review work the loop was supposed to *remove*, not savings. Track it per goal; a low acceptance rate means the loop is generating queue, not throughput, and the fix is a better gate or a narrower task, not more runs. Report it as **undefined, not zero**, when nothing was accepted — spend with no accepted change is pure waste, and a `0` would hide that. The [reference implementation](./README.md#reference-implementation) computes it on every reliability report (`ReliabilityReport.cost_per_accepted`, from `loopkit measure`), the cost twin of the `pass^k` curve (Ch 9).
+
 ## Builds on
 
 Chapter 13 left `run_agent_tick` returning a cost figure abstractly; this chapter measures it for real and feeds the budget-ceiling stop. The budget ceiling is now an *economic* control, not just a safety one, and `roi_ok` is the gate you run before even starting the loop.
@@ -66,6 +68,7 @@ Chapter 13 left `run_agent_tick` returning a cost figure abstractly; this chapte
 2. **No per-user / per-fleet ceiling.** Costs look fine per-call and catastrophic in aggregate. Enforce ceilings administratively *and* in the loop.
 3. **Skipping the ROI back-of-envelope.** `MAX × cost/tick` vs the outcome's value takes a minute and catches upside-down loops before they run.
 4. **Forgetting your review time is a cost.** A loop that outputs more than you can verify hasn't saved the time it appears to.
+5. **Measuring cost by tokens or attempts, not accepted changes.** Tokens spent and tasks attempted always look productive; cost per *accepted* change is the only figure that ties spend to what shipped. A loop with a low acceptance rate is paying to generate review queue.
 
 ## Takeaway
 

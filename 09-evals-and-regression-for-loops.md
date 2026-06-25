@@ -46,6 +46,10 @@ The general eval machinery — golden task sets, final-answer vs trajectory eval
 
 A note on the stopping oracle: when it's deterministic (a test exits 0) it's trustworthy. When it's an LLM-judge it has documented biases (self-preference, position, verbosity, shortcut),[<sup>3</sup>](#sources) so prefer deterministic gates, reach for a judge only when nothing cheaper checks the thing, and back it with a deterministic floor — "the judge says done" must never override "the build is red."
 
+Before you trust *any* gate as the loop's stop oracle, prove it's **stable**: run it K times on one frozen, unchanged state. If the verdict flips on identical code, the gate is flaky — and a flaky stop oracle corrupts *every* stop decision the loop makes, because it can't tell "the code changed" from "the gate is noisy." The loop will "fix" code that is already correct, or halt on code that is broken. A flaky gate is worse than no gate: no gate fails honestly, a flaky one fails silently. The verdict on that frozen state needn't be *pass* — a loop legitimately starts red — only *unanimous*. It's a one-minute pre-flight that saves a whole run, and it's the precondition for everything downstream: `pass^k` is meaningless if a single run's verdict isn't itself deterministic. The [reference implementation](./README.md#reference-implementation) ships it as a refusal-to-start (`run --check-gate N` / `safety.gate_stability(gate, tree, runs)`).
+
+This reliability metric has a cost twin. `pass^k` tells you how *often* the loop succeeds; **cost per accepted change** tells you what a trustworthy success *costs* — and you want both, because a loop can be reliable and ruinous, or cheap and useless. That metric belongs to economics — Chapter 14.
+
 ## Implement it
 
 A workable eval harness is small: run the loop against golden tasks and record convergence, stop-reason, ticks, cost, whether it cheated — and now whether it *overfit*. The `evals.py` companion to `loop.py` adds the held-out gate:
