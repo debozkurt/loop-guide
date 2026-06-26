@@ -32,6 +32,7 @@ import datetime as dt
 import enum
 import hashlib
 import json
+import os
 import pathlib
 import subprocess
 import sys
@@ -79,6 +80,12 @@ class Config:
     )
     model: str = "claude-fable-5"
     gate_cmd: str = "./verify.sh"       # the external stopping oracle (Ch 7) — exit 0 == done
+    # Per-run work assignment (Ch 10–12). When a supervisor fans out, each worker
+    # carries its OWN slice here. run_agent injects it into the prompt and the gate
+    # sees it as $LOOP_TASK — that pairing is what scopes a worker to ONE module
+    # (fix only this AND test only this). None for a plain single loop, where the
+    # prompt and gate already cover the whole goal.
+    task: Optional[str] = None
     # --- the three hard stops (Ch 13) ---
     max_iter: int = 50                  # stop 1: iteration cap
     budget_usd: float = 20.0            # stop 2: budget ceiling
@@ -97,10 +104,11 @@ class Config:
 # --------------------------------------------------------------------------- #
 # Subprocess + git helpers
 # --------------------------------------------------------------------------- #
-def run(cmd: list[str] | str, cwd: pathlib.Path, stdin: Optional[str] = None) -> subprocess.CompletedProcess:
+def run(cmd: list[str] | str, cwd: pathlib.Path, stdin: Optional[str] = None,
+        env: Optional[dict] = None) -> subprocess.CompletedProcess:
     return subprocess.run(
         cmd, cwd=str(cwd), shell=isinstance(cmd, str),
-        input=stdin, capture_output=True, text=True,
+        input=stdin, capture_output=True, text=True, env=env,
     )
 
 
@@ -150,6 +158,11 @@ class AgentResult:
 
 def run_agent(cfg: Config, feedback: Optional[str]) -> AgentResult:
     prompt = cfg.prompt_file.read_text() if cfg.prompt_file.exists() else "Make progress on the task."
+    if cfg.task:
+        # Fan-out (Ch 10–12): this worker's assigned slice. Making it explicit in the
+        # prompt — "do ONLY this" — is what keeps a worker on one module instead of
+        # fixing the whole suite. Pairs with the $LOOP_TASK-scoped gate below.
+        prompt += f"\n\n## Your assigned task — do ONLY this, leave every other module untouched\n{cfg.task}\n"
     if feedback:
         # Closed loop: last iteration's gate FAILURE becomes this iteration's input (Ch 7).
         prompt += f"\n\n## Verification feedback from the previous attempt\n{feedback}\n"
@@ -160,7 +173,17 @@ def run_agent(cfg: Config, feedback: Optional[str]) -> AgentResult:
     cmd = cfg.agent_cmd.format(prompt_file=cfg.prompt_file, model=cfg.model)
     proc = run(cmd, cfg.repo_dir, stdin=prompt)
     cost = _parse_cost(proc.stdout)
-    log("INFO", "agent", "agent tick complete", rc=proc.returncode, cost_usd=round(cost, 4))
+    if proc.returncode != 0:
+        # The agent exited non-zero — it almost certainly did NO work this tick
+        # (bad/unavailable model, auth failure, CLI error). Surface it LOUDLY: a
+        # silent failure here masquerades as a no-progress stall, because a broken
+        # agent makes no file changes (Ch 13). Payload-safe: lengths/rc only, no
+        # content — check the model id and auth, then re-run with --model.
+        log("WARN", "agent", "agent exited non-zero — likely did no work this tick (check model/auth)",
+            rc=proc.returncode, cost_usd=round(cost, 4),
+            stdout_len=len(proc.stdout), stderr_len=len(proc.stderr))
+    else:
+        log("INFO", "agent", "agent tick complete", rc=proc.returncode, cost_usd=round(cost, 4))
     return AgentResult(cost_usd=cost, ok=proc.returncode == 0)
 
 
@@ -214,7 +237,11 @@ def verification_gate(cfg: Config) -> GateResult:
         log("INFO", "gate", "gate check (dry-run)", passed=passed, counter=n)
         return GateResult(passed=passed, feedback=fb)
 
-    proc = run(cfg.gate_cmd, cfg.repo_dir)
+    # The worker's task rides to the gate as $LOOP_TASK so a fleet gate can scope
+    # itself to one module (e.g. `pytest test_$LOOP_TASK.py`). Unset for a plain
+    # loop, where the gate runs the whole suite.
+    gate_env = {**os.environ, "LOOP_TASK": cfg.task} if cfg.task else None
+    proc = run(cfg.gate_cmd, cfg.repo_dir, env=gate_env)
     passed = proc.returncode == 0
     # On failure, hand the gate's output back as the next prompt's feedback.
     feedback = None if passed else (proc.stdout + proc.stderr)[-2000:]

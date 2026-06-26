@@ -60,7 +60,7 @@ EOF
 cat > verify.sh <<'EOF'
 #!/usr/bin/env bash
 # anti-gaming guard (Ch 9): reject a "pass" achieved by editing the tests
-if git rev-parse HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 HEAD | grep -q 'test_'; then
+if git rev-parse HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 HEAD | grep -qE '(^|/)test_[^/]*\.py$'; then
   echo "REJECTED: last commit modified tests"; exit 1
 fi
 python3 -m pytest -q
@@ -91,6 +91,16 @@ allowed-tools: Bash(python3 *), Bash(git *)
 - Run `./verify.sh`; iterate until it exits 0.
 EOF
 
+# .gitignore (Ch 15): the loop commits with `git add -A` every tick. Without this it
+# would also commit pytest's bytecode (__pycache__/test_*.pyc) — and the gate's
+# anti-gaming guard would then match that compiled-test filename and falsely REJECT
+# on the 2nd+ tick. Every loop repo needs a .gitignore so `git add -A` stays clean.
+cat > .gitignore <<'EOF'
+__pycache__/
+.pytest_cache/
+*.pyc
+EOF
+
 git add -A && git commit -qm "broken feature + gate + anchors + skill"
 ```
 
@@ -101,6 +111,8 @@ python3 "$HARNESS/loop.py" \
   --repo-dir "$LAB" --gate-cmd ./verify.sh \
   --max-iter 5 --budget 2.0 --no-progress-n 2
 ```
+
+> **If the agent appears to do nothing** — each tick logs `WARN … agent exited non-zero … rc=1 cost_usd=0.0` and the loop halts on `no_progress` almost immediately — the agent command failed *before* doing any work, almost always because the **model isn't enabled on your account**. The harness defaults to `claude-fable-5`; pass `--model <a model you can run>` (e.g. `--model claude-haiku-4-5-20251001`) and re-run. A broken agent makes no file changes, so without that WARN it would read as a no-progress stall rather than a failure — which is why the harness logs the non-zero exit loudly.
 
 **Checkpoint** — watch the whole course fire in the logs: the agent reads the anchors and the skill, edits `pricing.py`, the **gate** runs (`[loops][gate] gate check`), a failure feeds back as the next tick's input, and on success you get `HALT reason=done`. Then inspect the durable trail:
 
@@ -152,19 +164,52 @@ python3 "$HARNESS/orchestrate.py" --dry-run \
   --max-workers 3 --per-worker-budget 2.0 --fleet-budget 5.0 --max-iter 6
 ```
 
-**Checkpoint** — each worker gets its own isolated scratch dir, runs its own self-governed loop concurrently (the logs interleave by `worker=`), and the supervisor reports `fleet complete done=3 total=3 needs_human=0`. Note `--fleet-budget 5.0` caps *total* spend below the sum of per-worker budgets ([Ch 13–14](../../13-making-loops-halt.md)) — one runaway worker can't hide.
+**Checkpoint** — each worker gets its own isolated scratch dir, runs its own self-governed loop concurrently (the logs interleave by `worker=`), and the supervisor reports `fleet complete done=3 total=3 needs_human=0`. Note `--fleet-budget 5.0` declares the intended *total* ceiling and is logged at startup — but in this reference dispatcher it is **not yet enforced** across workers: each worker enforces only its own `--per-worker-budget`, so the true bound is `max-workers × per-worker-budget` (here 3 × $2 = $6). A hard fleet cap needs a shared, locked spend tally that cancels in-flight workers — a deliberate next step ([Ch 13–14](../../13-making-loops-halt.md)). Until then, set per-worker budgets so their sum is the ceiling you can actually afford.
 
-For a **real** thin fleet, build three independent broken modules (each like Step 2's `pricing.py`, in its own file with its own test) in one git repo, then drop `--dry-run`:
+For a **real** thin fleet, build three independent broken modules (each like Step 2's `pricing.py`, in its own file with its own test) in one git repo. Two anchors make the fan-out *partition* the work instead of having every worker redundantly fix everything:
+
+- **The task names the module.** The supervisor passes each worker its own `--tasks` entry; the harness injects it into that worker's prompt (`run_agent`) and exposes it to the gate as `$LOOP_TASK` (`verification_gate`). So `--tasks "pricing" "shipping" "tax"` scopes worker 1 to `pricing`, worker 2 to `shipping`, worker 3 to `tax`.
+- **The prompt and the gate are both scoped to it.** The shared `PROMPT.md` says *fix only your assigned module*; the gate runs only that module's test. A whole-suite gate would force every worker to fix all three to go green — defeating the partition.
+
+```bash
+# PROMPT.md — explicit single-module scope (this is what keeps a worker on its lane)
+cat > PROMPT.md <<'EOF'
+You are ONE worker in a fleet. Fix ONLY the module named in your assigned task
+below — do not modify any other module, and never edit a test file.
+Each *_total ignores its rate; it must return sum(items) * (1 + rate).
+Run ./verify.sh until it exits 0, then stop.
+EOF
+
+# verify.sh — scope the gate to this worker's module via $LOOP_TASK (fall back to
+# the whole suite for a plain single loop, where $LOOP_TASK is unset)
+cat > verify.sh <<'EOF'
+#!/usr/bin/env bash
+if git rev-parse HEAD~1 >/dev/null 2>&1 && git diff --name-only HEAD~1 HEAD | grep -qE '(^|/)test_[^/]*\.py$'; then
+  echo "REJECTED: last commit modified tests"; exit 1
+fi
+if [ -n "${LOOP_TASK:-}" ]; then
+  python3 -m pytest -q "test_${LOOP_TASK}.py"   # fleet: only this worker's module
+else
+  python3 -m pytest -q                          # single loop: the whole suite
+fi
+EOF
+chmod +x verify.sh
+```
+
+Add the `CLAUDE.md` and `.gitignore` from Step 2, commit, then drop `--dry-run`:
 
 ```bash
 python3 "$HARNESS/orchestrate.py" \
-  --tasks "fix pricing" "fix shipping" "fix tax" \
+  --tasks "pricing" "shipping" "tax" \
+  --model claude-fable-5 \
   --max-workers 3 --per-worker-budget 2.0 --fleet-budget 5.0 --max-iter 8
 ```
 
-Each worker now gets its own **git worktree** on its own branch ([Ch 10](../../10-from-one-loop-to-many.md), [Ch 16](../../16-permissions-and-safety.md)) — parallel workers can't collide, and each worker's blast radius is isolated. Review the three branches; integrate the green ones.
+Each worker gets its own **git worktree** on its own branch ([Ch 10](../../10-from-one-loop-to-many.md), [Ch 16](../../16-permissions-and-safety.md)) — parallel workers can't collide, and each worker's blast radius is isolated.
 
-**Trap** — fan out only *independent* tasks ([Ch 12](../../12-dynamic-workflows-and-fan-out.md)). Three workers editing the *same* module produce three conflicting branches and a merge headache, not a 3× speedup. Independence is the precondition for parallelism.
+**Checkpoint** — `fleet complete done=3 total=3 needs_human=0`, and each branch changed **only its own module**: `git diff --name-only main loop/worker-1` shows `pricing.py` alone, worker-2 shows `shipping.py`, worker-3 shows `tax.py`. That's real fan-out — three independent slices — not 3× the same work. Integrate all three green branches and the full suite passes.
+
+**Trap** — fan out only *independent* tasks ([Ch 12](../../12-dynamic-workflows-and-fan-out.md)). Three workers editing the *same* module produce three conflicting branches and a merge headache, not a 3× speedup. Independence is the precondition for parallelism — and it only holds if the task **and** the gate are scoped per worker, as above; without that, the workers all chase the same whole-suite green and redundantly rewrite everything.
 
 ---
 
