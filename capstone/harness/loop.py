@@ -338,19 +338,25 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--gate-cmd", help="the external verification gate command")
     p.add_argument("--model", help="agent model id")
     p.add_argument("--push", action="store_true", help="push commits to the feature branch (Ch 15)")
-    p.add_argument("--subscription", action="store_true",
-                   help="bill the agent to your Claude Code subscription, not the API: "
-                        "strips ANTHROPIC_API_KEY from the agent subprocess (Ch 14)")
+    p.add_argument("--subscription", action=argparse.BooleanOptionalAction, default=None,
+                   help="bill the agent to your Claude Code subscription instead of the API "
+                        "(strips ANTHROPIC_API_KEY from the agent subprocess); --no-subscription "
+                        "forces API billing. Default comes from config.json (Ch 14).")
     p.add_argument("--dry-run", action="store_true", help="stub agent that reaches DONE — no spend")
     p.add_argument("--dry-run-stall", action="store_true", help="stub agent that stalls — exercises no-progress HALT")
     args = p.parse_args(argv)
 
     cfg = load_config(args.config)
     for field in ("repo_dir", "max_iter", "budget_usd", "no_progress_n", "gate_cmd", "model",
-                  "push", "subscription", "dry_run", "dry_run_stall"):
+                  "push", "dry_run", "dry_run_stall"):
         val = getattr(args, field, None)
         if val:
             setattr(cfg, field, val)
+    # subscription is tri-state: None = keep the config.json default; True/False =
+    # explicit override. It can't ride the `if val:` loop above — that can't express
+    # an explicit False (--no-subscription), which must win over a config default.
+    if args.subscription is not None:
+        cfg.subscription = args.subscription
 
     reason = run_loop(cfg)
     # Exit code carries the verdict: 0 == DONE, non-zero == a safety halt that

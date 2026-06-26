@@ -123,9 +123,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--per-worker-budget", type=float, default=10.0, help="budget per worker (Ch 13)")
     p.add_argument("--max-iter", type=int, default=20, help="per-worker iteration cap")
     p.add_argument("--model", help="agent model id for every worker (overrides the Config default)")
-    p.add_argument("--subscription", action="store_true",
-                   help="bill every worker to your Claude Code subscription, not the API "
-                        "(strips ANTHROPIC_API_KEY from the agent subprocess) (Ch 14)")
+    p.add_argument("--subscription", action=argparse.BooleanOptionalAction, default=True,
+                   help="bill every worker to your Claude Code subscription instead of the API "
+                        "(strips ANTHROPIC_API_KEY from the agent subprocess); --no-subscription "
+                        "forces API billing. Default ON (Ch 14).")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args(argv)
 
