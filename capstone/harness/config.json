@@ -5,6 +5,9 @@
   "prompt_file": "PROMPT.md",
   "model": "claude-fable-5",
 
+  "_billing": "Ch 14 — strip ANTHROPIC_API_KEY from the agent so claude uses your Claude Code subscription (plan rate limits) instead of per-token API billing. Default ON here.",
+  "subscription": true,
+
   "agent_cmd": "claude -p --output-format stream-json --permission-mode acceptEdits --model {model}",
   "gate_cmd": "./verify.sh",
 
