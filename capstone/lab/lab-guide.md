@@ -114,6 +114,8 @@ python3 "$HARNESS/loop.py" \
 
 > **If the agent appears to do nothing** — each tick logs `WARN … agent exited non-zero … rc=1 cost_usd=0.0` and the loop halts on `no_progress` almost immediately — the agent command failed *before* doing any work, almost always because the **model isn't enabled on your account**. The harness defaults to `claude-fable-5`; pass `--model <a model you can run>` (e.g. `--model claude-haiku-4-5-20251001`) and re-run. A broken agent makes no file changes, so without that WARN it would read as a no-progress stall rather than a failure — which is why the harness logs the non-zero exit loudly.
 
+> **Billing — subscription vs. API key.** If `ANTHROPIC_API_KEY` is set in your environment, `claude` bills the **API per token** instead of your Claude Code subscription (the key takes precedence over the plan login whenever it's present). Pass **`--subscription`** to strip that key from the agent subprocess so the loop runs on your plan (rate-limited, not per-token billed) — the flag is on both `loop.py` and `orchestrate.py`. Verify from the agent's first `stream-json` line: `apiKeySource: none` means the subscription; `apiKeySource: ANTHROPIC_API_KEY` means the API. (Under the subscription, `total_cost_usd` still prints a *notional* figure, so the budget stop keeps working as a usage limiter — but your real ceiling is now your plan's rate limit, so keep the three hard stops tight.)
+
 **Checkpoint** — watch the whole course fire in the logs: the agent reads the anchors and the skill, edits `pricing.py`, the **gate** runs (`[loops][gate] gate check`), a failure feeds back as the next tick's input, and on success you get `HALT reason=done`. Then inspect the durable trail:
 
 ```bash

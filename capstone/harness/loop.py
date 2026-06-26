@@ -79,6 +79,11 @@ class Config:
         "--permission-mode acceptEdits --model {model}"
     )
     model: str = "claude-fable-5"
+    # Billing/auth (Ch 14). When True, run_agent strips ANTHROPIC_API_KEY from the
+    # agent subprocess so `claude` uses your Claude Code SUBSCRIPTION login (plan
+    # rate-limited) instead of per-token API billing — the API key takes precedence
+    # whenever it is present in the env, so removing it is what lets the plan win.
+    subscription: bool = False
     gate_cmd: str = "./verify.sh"       # the external stopping oracle (Ch 7) — exit 0 == done
     # Per-run work assignment (Ch 10–12). When a supervisor fans out, each worker
     # carries its OWN slice here. run_agent injects it into the prompt and the gate
@@ -171,7 +176,13 @@ def run_agent(cfg: Config, feedback: Optional[str]) -> AgentResult:
         return _dry_run_agent(cfg)
 
     cmd = cfg.agent_cmd.format(prompt_file=cfg.prompt_file, model=cfg.model)
-    proc = run(cmd, cfg.repo_dir, stdin=prompt)
+    # Billing (Ch 14): with --subscription, strip ANTHROPIC_API_KEY from the agent's
+    # env so `claude` falls back to your subscription login. The key would otherwise
+    # take precedence and bill the API per token (apiKeySource=ANTHROPIC_API_KEY).
+    agent_env = None
+    if cfg.subscription:
+        agent_env = {k: v for k, v in os.environ.items() if k != "ANTHROPIC_API_KEY"}
+    proc = run(cmd, cfg.repo_dir, stdin=prompt, env=agent_env)
     cost = _parse_cost(proc.stdout)
     if proc.returncode != 0:
         # The agent exited non-zero — it almost certainly did NO work this tick
@@ -327,13 +338,16 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--gate-cmd", help="the external verification gate command")
     p.add_argument("--model", help="agent model id")
     p.add_argument("--push", action="store_true", help="push commits to the feature branch (Ch 15)")
+    p.add_argument("--subscription", action="store_true",
+                   help="bill the agent to your Claude Code subscription, not the API: "
+                        "strips ANTHROPIC_API_KEY from the agent subprocess (Ch 14)")
     p.add_argument("--dry-run", action="store_true", help="stub agent that reaches DONE — no spend")
     p.add_argument("--dry-run-stall", action="store_true", help="stub agent that stalls — exercises no-progress HALT")
     args = p.parse_args(argv)
 
     cfg = load_config(args.config)
     for field in ("repo_dir", "max_iter", "budget_usd", "no_progress_n", "gate_cmd", "model",
-                  "push", "dry_run", "dry_run_stall"):
+                  "push", "subscription", "dry_run", "dry_run_stall"):
         val = getattr(args, field, None)
         if val:
             setattr(cfg, field, val)
