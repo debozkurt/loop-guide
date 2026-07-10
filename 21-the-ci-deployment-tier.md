@@ -31,7 +31,7 @@ The arc is **delegation shrinking as you descend**. Local delegates everything t
 
 > **Use the platform's primitives first.** Before you stand up a trigger, a secret store, an identity system, or a sandbox, check whether the forge already gives you one. It does — and its version is battle-tested, free, and one fewer thing you operate.
 
-The pull to build the cloud tier first is strong, because it *feels* like real infrastructure. Resisting it until a real need (concurrency, evolution, multi-tenancy) forces the move is the difference between a loop you ship this afternoon and a cluster you babysit.
+The pull to build the cloud tier first is strong, because it *feels* like real infrastructure. Resisting it until a real need (concurrency, evolution, multi-tenancy) forces the move is what lets you ship a loop this afternoon rather than take on a cluster to operate.
 
 ## How it works
 
@@ -47,6 +47,19 @@ Map the four primitives a loop needs onto what the CI runner already hands you, 
 Every cell on the right is "the forge." The loop supplies only the loop. The flow: a labelled issue starts a job → the job installs the harness and runs `loop.py --from-event <event.json> --open-pr` → the loop solves the issue on a branch under the unchanged Part I–VII envelope (gates, stops, durability, least privilege) → on DONE it pushes the branch and opens a **draft** PR whose body says `Closes #N`. Draft, always: the loop proposes, a human merges (Chapter 16 — irreversible actions stay human-gated).
 
 One honest asymmetry between the forges: **GitHub has a native issue→job trigger** (`on: issues: [opened, labeled]`); **GitLab does not**, so its CI fires on a manual run, a pipeline schedule, or a webhook→trigger token, passing the issue number as a variable. Same loop, slightly different on-ramp.
+
+### The loop doesn't stop at the PR
+
+The tiers above end at a draft PR — but that is not where the *work* ends. A human reviews the PR and requests changes, and those change requests are themselves a well-specified goal. A loop whose lifecycle stops at "PR opened" hands that last mile back to a person; the complete lifecycle is **issue → PR → review → revise → merge**, and the revise step is another loop run.
+
+A **revise run** is triggered by a review event — GitHub's `pull_request_review` with state *changes requested* — on a branch the loop itself opened. It resumes that PR's branch, treats the reviewer's comments as the goal, and pushes back to the *same* PR: no new PR, and crucially no `Closes #N` (a revision must not re-close the issue). Four disciplines make it safe, and each is a small inversion of Chapter 20's trigger rules:
+
+- **Identity binds to the reviewer, not the author.** On the initial run the human in the loop was the issue author; on a revise run it's whoever requested the changes. Bind the run's key and accountability to the reviewer.
+- **Dedupe inverts to one-run-per-round.** Chapter 20 keyed on the issue identity so one issue starts *at most one* run — correct for creation, wrong here. A PR is reviewed many times, and each round of changes-requested is legitimately new work, so the key becomes `repo#prN@reviewId` — one run *per review round*, not one ever.
+- **Containment is the branch prefix.** The loop may only revise PRs *it authored* — gate on the branch name (`loop/*`). Without it, a review on any PR could aim the loop at code it never wrote.
+- **CI-failure auto-revise is deliberately excluded.** It's tempting to also trigger on a red CI check, but the loop's own push *is* what runs CI — a failing check that triggers a revise that pushes again is an unbounded self-trigger. Only a *human's* changes-requested review is a work order; a machine signal the loop itself produced is not.
+
+This closes the gap the earlier framing hides: the loop's goal is a merged change, not just an opened PR, and merged changes almost always take a round of review. Same `run_loop`, same envelope — the only new things are a second trigger shape and an inverted dedupe key.
 
 ## Implement it
 
@@ -91,12 +104,12 @@ jobs:
 
 That is the whole deployment: no server, no listener, no secret store — the four primitives are all the forge's, and the loop is a `pip install` and one command.
 
-> **Production reference — loopkit.** The companion reference tool **loopkit** (`~/Documents/loopkit`) ships this tier as `loopkit run --from-event/--from-issue --open-pr` (plus `--adapter claude-api`, which needs no agent binary in CI) and scaffolds the workflow with `loopkit init --ci github|gitlab`. It runs the *real* loop over a canned issue event end-to-end, offline — and `--live` lets the real agent solve it:
+> **Production reference — loopkit.** The companion reference tool **[loopkit](https://github.com/debozkurt/loop-kit)** ships this tier as `loopkit run --from-event/--from-issue --open-pr` (plus `--adapter claude-api`, which needs no agent binary in CI) and scaffolds the workflow with `loopkit init --ci github|gitlab`. It runs the *real* loop over a canned issue event end-to-end, offline — and `--live` lets the real agent solve it:
 > ```bash
 > loopkit demo 21          # The CI tier: a canned issue → a draft PR, no cluster (scripted)
 > loopkit demo 21 --live   # the real agent actually solves the issue
 > ```
-> loopkit's deeper write-up — the GitHub-vs-GitLab differences and the per-tier primitive map — is in its `docs/part-iii-ecosystem.md`.
+> loopkit's deeper write-up — the GitHub-vs-GitLab differences and the per-tier primitive map — is in its `docs/part-iii-ecosystem.md`. It also ships the post-PR follow-through: `triggers.parse_review_event` (changes-requested only — approvals and plain comments aren't work orders) turns a `pull_request_review` into a revise goal, and `run --from-event` resumes the PR's branch; `loopkit demo 20` includes the revise beat.
 
 ## Builds on
 
@@ -110,6 +123,7 @@ Chapter 20 built a trigger *you* own and secure; this chapter is the cheaper inv
 4. **Leaking a secret into logs.** CI masks declared secrets, but a key echoed by a tool can still surface. Keep the key out of the agent's reach and never print credential values.
 5. **Assuming GitLab has GitHub's issue trigger.** It doesn't — wire GitLab to a manual run, a schedule, or a webhook→trigger token, and pass the issue number as a variable.
 6. **Skipping the label gate.** Without it, every opened issue burns a job and a token. Gate on an opt-in label (Chapter 20).
+7. **Stopping at "PR opened."** A draft PR is the start of the work, not the end of it; a human's changes-requested review is a fresh goal. Trigger a revise run on the review — bound to the reviewer, deduped per round, gated to branches the loop authored, and *never* on CI failure (the loop's own push runs CI — that's a self-trigger).
 
 ## Takeaway
 
@@ -118,7 +132,7 @@ There are three deployment tiers — local, CI, cloud fleet — and they differ 
 <!-- milestone-cumulative -->
 ## The loop so far — deployed
 
-The self-governed loop is complete and now has a home. It primes a fresh context, calls the agent, verifies the result against gates it can't game, reviews each commit, halts on the three hard stops, commits durably, runs least-privilege inside a sandbox — and it runs **where the work is**: on your laptop by hand, in CI off a labelled issue with zero infrastructure, or across your own fleet when scale demands it. The [capstone](./capstone/README.md) is the harness assembled and runnable; **loopkit** is its production-grade form, deployed across all three tiers.
+The self-governed loop is complete and now has a home. It primes a fresh context, calls the agent, verifies the result against gates it can't game, reviews each commit, halts on the three hard stops, commits durably, and runs least-privilege inside a sandbox. And it runs where the work is: on your laptop by hand, in CI off a labelled issue with zero infrastructure, or across your own fleet when scale demands it. It also doesn't stop at "PR opened": when a human reviews the PR and asks for changes, the same loop picks the branch back up and revises, so the lifecycle runs all the way to merge. The [capstone](./capstone/README.md) is the harness assembled and runnable; **loopkit** is its production-grade form, deployed across all three tiers.
 
 ## Sources
 
@@ -126,5 +140,5 @@ The self-governed loop is complete and now has a home. It primes a fresh context
 |---|--------|----------|------|
 | 1 | GitHub Docs — *Events that trigger workflows* (`issues`) | native issue→job trigger; `GITHUB_EVENT_PATH`; the job token | [docs.github.com](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#issues) |
 | 2 | GitLab Docs — *Pipeline trigger tokens / scheduled pipelines* | GitLab's lack of a native issue trigger; the manual/scheduled/trigger-token on-ramp | [docs.gitlab.com](https://docs.gitlab.com/ee/ci/triggers/) |
-| 3 | Reference implementation — **loopkit** (`run --from-event`, `init --ci`, `demo 21`) | the CI tier end-to-end: issue→goal→draft PR; the three-tier model; per-repo vs per-submitter identity | `~/Documents/loopkit` (local) |
+| 3 | Reference implementation — **loopkit** (`run --from-event`, `init --ci`, `demo 21`) | the CI tier end-to-end: issue→goal→draft PR; the three-tier model; per-repo vs per-submitter identity | [github.com/debozkurt/loop-kit](https://github.com/debozkurt/loop-kit) |
 | 4 | This manual, Chapters 16 & 20 | the sandbox + human-gate rules; the public trigger this tier delegates to the forge | [Ch 16](./16-permissions-and-safety.md) · [Ch 20](./20-triggers-as-infrastructure.md) |

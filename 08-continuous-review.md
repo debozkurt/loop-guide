@@ -14,7 +14,7 @@ It is a second loop running *alongside* the worker loop — a reviewer watching 
 
 ## How it works
 
-The timing is the whole point. A bug found a week later lands on a developer who has context-switched away; reconstructing intent is expensive. A bug found seconds after the commit, fed back into the loop that just wrote it, lands while the intent is still on disk and the diff is still the most recent thing — the fix is cheap, local, and correct.
+The timing is the whole point. A bug found a week later lands on a developer who has context-switched away; reconstructing intent is expensive. A bug found seconds after the commit, fed back into the loop that just wrote it, lands while the intent is still on disk and the diff is still the most recent thing. The fix is cheap, local, and correct.
 
 For a machine-speed loop the stakes are higher because of compounding (Chapter 7): if review waits, the loop has already built three more commits on top of the bad one, turning an amend into a four-commit rebase. So review closes the loop at **commit granularity**.
 
@@ -82,7 +82,7 @@ Chapter 7 gave one feedback channel (the synchronous gate); this adds the second
 
 ## Takeaway
 
-Continuous review is the second feedback channel: a background reviewer loop checking every commit and feeding findings back before they compound, while the producing context is fresh. It composes with — does not replace — the synchronous gate: the gate is the deterministic floor, review the semantic ceiling. Use a different model for review, and wire findings into the next tick. The writer+reviewer pair is your first step into multi-loop systems.
+Continuous review is the second feedback channel: a background reviewer loop checking every commit and feeding findings back before they compound, while the producing context is fresh. It composes with the synchronous gate rather than replacing it: the gate is the deterministic floor, review the semantic ceiling. Use a different model for review, and wire findings into the next tick. The writer+reviewer pair is your first step into multi-loop systems.
 
 ## Sources
 

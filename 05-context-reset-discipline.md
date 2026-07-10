@@ -10,7 +10,7 @@ The central, counterintuitive rule of loop engineering:
 
 > **A small, fresh, correct context beats a large, accumulating, degrading one.**
 
-The naive instinct — "keep the whole conversation so the agent remembers everything" — is wrong for any loop that runs more than a handful of ticks. A growing conversation **rots**, and the failure is silent: confident wrong output, not an error. The fix is to discard the conversation each tick and rebuild context deterministically from files on disk.
+The naive instinct — "keep the whole conversation so the agent remembers everything" — is wrong for any loop that runs more than a handful of ticks. A growing conversation **rots**, and the failure is silent: it produces confident wrong output instead of raising an error. The fix is to discard the conversation each tick and rebuild context deterministically from files on disk.
 
 ## How it works
 
@@ -28,6 +28,10 @@ The **fresh-context invariant** eliminates all four:
 This buys three properties an accumulating loop cannot have: **reproducibility** (tick 500 is primed exactly like tick 5), **bounded context size** (flat cost and quality over a long run instead of a degrading curve — load-bearing for economics, Chapter 14), and **self-healing** (a mistake on tick 12 doesn't haunt tick 13, which never sees tick 12's context — only its committed result on disk).
 
 The cost is **re-priming** each tick. Prompt caching largely absorbs it: the anchor files are *identical* across ticks, which is the best case for prefix caching, so re-reading them is served cheaply.[<sup>1</sup>](#sources) Order anchor files stable-prefix-first (rarely-changing files before the volatile plan file) to maximize the cache hit.
+
+Re-priming has two costs. The token cost — re-reading the anchors — is the one caching absorbs. The one it *doesn't* is **rediscovery**: the agent re-derives its understanding of the codebase every tick, including which files matter, what it already tried, and which approach was a dead end. On a large repo that is minutes of wasted work per tick, and it scales with repo size rather than cache state. The fresh-context invariant is what *causes* it: tick N cannot see tick N−1's reasoning, only its committed result on disk.
+
+The resolution avoids reopening the transcript, which would reintroduce all four rot mechanisms. Instead it is a **bounded, agent-curated note channel**: a small file the agent writes and re-reads across ticks holding only durable working state — files found, the current hypothesis, what failed and *why* — rendered like any other anchor. This keeps fresh-context's purity (the note is a designed, size-capped surface rather than an accumulating conversation) while giving the loop the one thing pure fresh-context throws away: intra-run memory. It is the plan file's discipline applied one level down: the plan file is the *human-facing* durable state, the note channel is the *agent-facing* one. The sharp edge is the bound — uncapped, the note becomes the growing history it was meant to replace, so cap its size and prune it every tick, exactly as you prune the plan.
 
 ## Implement it
 
@@ -71,10 +75,11 @@ Chapter 4's `cat PROMPT.md | claude -p` becomes a structured `build_prompt` + fr
 2. **One giant anchor file.** You then can't keep intent stable while state churns, and you wreck the cache hit. Separate by change-frequency.
 3. **Append-only plan files.** Durable state rots too if you only add to it. Instruct the loop to prune.
 4. **Assuming the model handles a cold start for free.** Fresh context means no conversational ramp — the model must orient from the anchor files alone every tick. Write them to make that easy.
+5. **Paying the rediscovery cost every tick.** Fresh context is right, but re-deriving the whole codebase each tick is wasted motion caching can't absorb. Give the loop a *bounded* note channel for intra-run working state — and bound it hard, or it rots back into the history you removed.
 
 ## Takeaway
 
-Long conversations rot — attention dilutes, early instructions fade, compaction corrupts, failed trajectories poison. The fresh-context invariant (tick N's context depends only on files on disk) trades a cache-cheap re-priming cost for reproducibility, flat cost/quality over long runs, and self-healing. The anchor files are the loop's real memory; designing them — intent separate from state, stable-prefix-first — is the craft.
+Long conversations rot — attention dilutes, early instructions fade, compaction corrupts, failed trajectories poison. The fresh-context invariant (tick N's context depends only on files on disk) trades a cache-cheap re-priming cost for reproducibility, flat cost/quality over long runs, and self-healing. Its one real recurring cost is *rediscovery* — the agent re-derives the codebase each tick — which a bounded, agent-curated note channel repays without reintroducing rot. The anchor files are the loop's real memory, and designing them — intent separate from state, stable-prefix-first, plus a size-capped note channel for what the loop learns within a run — is where the design effort goes.
 
 ## Sources
 

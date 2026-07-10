@@ -10,7 +10,7 @@ A guideline worth making structural:
 
 > **If you do something more than once, turn it into a skill. If you do something hard, turn it into a skill afterward so next time is free.**[<sup>1</sup>](#sources)
 
-Put it together with everything so far and you get the real claim of loop engineering: the loop is plumbing; the reusable, named, tested skill it calls is the asset. A loop with no reusable skills is a while-true around a stranger — every tick it re-discovers your build command, re-learns that the auth module is fragile, re-guesses the convention it violated last time. A loop that calls a library of sharp, named skills **compounds**: the hard-won knowledge lives in the skill, not in a context that gets discarded each tick.
+Put it together with everything so far and you get the real claim of loop engineering: the loop is plumbing; the reusable, named, tested skill it calls is the asset. A loop with no reusable skills is a while-true over a cold start: every tick it re-discovers your build command, re-learns that the auth module is fragile, re-guesses the convention it violated last time. A loop that calls a library of sharp, named skills **compounds**: the hard-won knowledge lives in the skill, not in a context that gets discarded each tick.
 
 ## How it works
 
@@ -31,11 +31,11 @@ flowchart TB
     end
 ```
 
-A **treadmill** loop re-derives everything every cold session and pays tokens to do it, every tick, with no asset to show for it. A **flywheel** loop calls a skill where the intent is written down once on the outside, and folds each run's learnings back in, so the next run starts where the last left off. This is "compound engineering": each unit of work should make the next *easier* by codifying learnings into reusable instructions, and the explicit write-back step is what separates it from a plain ReAct loop.[<sup>2</sup>](#sources) That edge does not happen for free — you build it deliberately, which is why most loops are treadmills.
+A **treadmill** loop re-derives everything every cold session and pays tokens to do it, every tick, with no asset to show for it. A **flywheel** loop calls a skill where the intent is written down once on the outside, and folds each run's learnings back in, so the next run starts where the last left off. This is "compound engineering": each unit of work should make the next *easier* by codifying learnings into reusable instructions, and the explicit write-back step is what separates it from a plain ReAct loop.[<sup>2</sup>](#sources) That edge does not happen for free. You build it deliberately, which is why most loops are treadmills.
 
 In the harness, a skill is a `SKILL.md` — a named, versioned, tool-scoped (least-privilege, Chapter 16) unit the loop calls like a function. The loop is the driver; the skill is the capability. "Babysit my PRs" is the loop; "how we review a PR here," "how we run the suite," "how we write a migration" are skills it invokes. Skills are how a loop stops being generic and starts knowing *your* codebase — which is most of the value, because the generic capability is the cheap, commoditized part. (Codex's analogue is `AGENTS.md` plus prompt files — less formalized, same move.)
 
-A precondition worth naming: the model has to be good enough at long-horizon, cold-start work for any of this to hold. Earlier-generation models lost the thread over hundreds of steps, which is why unbounded loops failed in 2023. Current long-horizon models — a 1M-token context, self-verification at high effort — are what flipped loops from "burns money chasing its tail" to "trustworthy overnight."[<sup>3</sup>](#sources) That self-verification reduces how often the external gate must fire; it does not remove the need for it (Chapter 7). Harness and model are complements, not rivals — skills are what make the *harness* half compound.
+A precondition worth naming: the model has to be good enough at long-horizon, cold-start work for any of this to hold. Earlier-generation models lost the thread over hundreds of steps, which is why unbounded loops failed in 2023. Current long-horizon models — a 1M-token context, self-verification at high effort — are what flipped loops from "burns money chasing its tail" to "trustworthy overnight."[<sup>3</sup>](#sources) That self-verification reduces how often the external gate must fire; it does not remove the need for it (Chapter 7). The harness and the model complement each other, and skills are what make the *harness* half compound.
 
 ## Implement it
 

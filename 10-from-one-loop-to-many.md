@@ -37,7 +37,7 @@ flowchart TB
     SUP -. read/write .-> ST
 ```
 
-Three design facts: the **workers are ralph loops** (Chapter 4 — orchestration supervises a fleet of them, it doesn't replace them); **state lives in the shared store, not any agent's context** (the fresh-context invariant raised to the fleet — any agent can die and another resumes from the store); and the **supervisor's per-tick decisions are the hard part** — what to dispatch, which workers are healthy, how to react to a stuck one, how to integrate finished work. Each is a model decision, which makes orchestration powerful and dangerous in equal measure.
+Three design facts. The **workers are ralph loops** (Chapter 4 — orchestration supervises a fleet of them, it doesn't replace them). **State lives in the shared store, not any agent's context** (the fresh-context invariant raised to the fleet — any agent can die and another resumes from the store). And the **supervisor's per-tick decisions are the hard part**: what to dispatch, which workers are healthy, how to react to a stuck one, how to integrate finished work. Each is a model decision, which is what makes orchestration both powerful and dangerous.
 
 **Isolation is the precondition.** Two agents editing the same working tree corrupt each other instantly. Each worker gets its own **git worktree** on its own branch; the supervisor integrates the branches.[<sup>2</sup>](#sources) Stronger isolation (a container per worker) also bounds each worker's blast radius (Chapter 16).
 

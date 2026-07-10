@@ -46,9 +46,9 @@ flowchart TB
     A3 --> C
 ```
 
-"Review these 40 files," "convert these 30 modules," "investigate these 12 flaky tests" — each slice is blind to the others, so N subagents finish in roughly the time of the slowest, not the sum. If the slices share state or depend on each other, parallelism reintroduces the collision problem (Chapter 10) and you spend more on coordination than you saved. **Fan out what's independent; sequence what isn't.**
+"Review these 40 files," "convert these 30 modules," "investigate these 12 flaky tests" — each slice is blind to the others, so N subagents finish in roughly the time of the slowest, not the sum. If the slices share state or depend on each other, parallelism reintroduces the collision problem (Chapter 10) and you spend more on coordination than you saved. Fan out what's independent; sequence what isn't.
 
-**From blind fan-out to evolutionary search.** Plain fan-out runs N *independent* attempts and keeps the best — which is best-of-N against the gate, and so exposed to the selection inflation of Chapter 9: the winner's green is partly luck. Two richer topologies trade independence for an actual search:
+**From blind fan-out to evolutionary search.** Plain fan-out runs N *independent* attempts and keeps the best. That is best-of-N against the gate, so it is exposed to the selection inflation of Chapter 9: the winner's green is partly luck. Two richer topologies trade independence for an actual search:
 
 | Topology | How candidates relate | What you keep | Best when |
 |---|---|---|---|
@@ -69,9 +69,9 @@ def evolve(seed, score, generations=5, pop=8, keep=2):
     return population[0]                                 # then re-validate on a HELD-OUT gate (Ch 9)
 ```
 
-Because it is *repeated* best-of-N against a scorer, the evolutionary loop is the topology most exposed to selection inflation and overfitting — so the held-out acceptance gate (Chapter 9) is not optional here, it is the only thing separating a discovered edge from a whole generation of prettier noise.
+Because it is *repeated* best-of-N against a scorer, the evolutionary loop is the topology most exposed to selection inflation and overfitting. The held-out acceptance gate (Chapter 9) is not optional here; it is the only thing separating a discovered edge from a whole generation of noise that only looks better.
 
-**Dynamic workflows** raise the altitude again: instead of *you* choosing the slices and topology, you describe the goal and the agent creates a workflow orchestrating "tens to hundreds of agents."[<sup>1</sup>](#sources) That's the Chapter 1 altitude shift applied to orchestration itself — and exactly where blast radius gets large, so the budget ceiling (Chapter 13) and verification (Part III) are not optional. Design for tens-to-hundreds; the viral "thousands of agents" figures are anecdote, not spec.
+**Dynamic workflows** raise the altitude again: instead of *you* choosing the slices and topology, you describe the goal and the agent creates a workflow orchestrating "tens to hundreds of agents."[<sup>1</sup>](#sources) That's the Chapter 1 altitude shift applied to orchestration itself. It's also exactly where blast radius gets large, so the budget ceiling (Chapter 13) and verification (Part III) are not optional. Design for tens-to-hundreds; the viral "thousands of agents" figures are anecdotal and shouldn't drive your design.
 
 **Triggers** are the idea that ties Part IV together. The loop body runs the same `decide → act → verify → commit` cycle regardless of what fired it, so once it's trustworthy you choose the triggers — and at scale you choose the ones that aren't you:
 

@@ -23,7 +23,7 @@ flowchart LR
 
 ## Concept
 
-Everything before this chapter is load-bearing now. This chapter is direction-of-travel, so it is organized by **confidence**, not by topic: what has already shipped, what is emerging with evidence, and what is genuine speculation. Treat the first as fact, the second as trends to design *toward*, and the third as scenarios to plan *around* — not bet on.
+Everything before this chapter is load-bearing now. This chapter is direction-of-travel, so it is organized by **confidence** rather than by topic: what has already shipped, what is emerging with evidence, and what is genuine speculation. Treat the first as fact, the second as trends to design *toward*, and the third as scenarios to plan *around* — not bet on.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {'background':'#0d1117','primaryColor':'#21262d','primaryTextColor':'#e6edf3','primaryBorderColor':'#8b949e','lineColor':'#8b949e','fontSize':'13px'}}}%%
@@ -61,11 +61,11 @@ flowchart LR
 
 ### Emerging (design toward these)
 
-**Self-improving loops work — but only gated.** Automating the write-back edge from Chapter 17 (loops that distill their own trajectories into reusable skills) is an active, productive research area, with validation-gated approaches reporting real accuracy gains. The load-bearing caveat: purely self-generated skills with *no* curation or eval gate "rarely help" and can regress.[<sup>4</sup>](#sources) This is Chapter 9 restated at the meta level — the gate is the variable, not the idea. Automate the flywheel, but never the gate.
+**Self-improving loops work — but only gated.** Automating the write-back edge from Chapter 17 (loops that distill their own trajectories into reusable skills) is an active, productive research area, with validation-gated approaches reporting real accuracy gains. The load-bearing caveat: purely self-generated skills with *no* curation or eval gate "rarely help" and can regress.[<sup>4</sup>](#sources) This is Chapter 9 restated at the meta level: the gate is what makes the difference. Automate the flywheel, but never the gate.
 
 **Verification at scale is the central unsolved problem.** This is the honest frontier. Current verifiers have blind spots for human-like errors and boundary conditions; generative and LLM-based verifiers improve detection but do not close the gap, and there is no trustworthy "authoritative gate the fleet can't overrule" yet.[<sup>5</sup>](#sources) Everything else can advance, but until verification at fleet scale is solved, the output-quality ceiling from Chapter 11 (the architecture is real, the outcome is not) holds. Watch this space; it is where the leverage is.
 
-**Sandboxing-by-default and fleet FinOps are becoming table stakes.** Prompt injection scales with autonomy — malicious payloads in untrusted content are rising — and the emerging baseline for agents touching untrusted input is OS-level isolation by default with policy engines the agent cannot override (Chapter 16, becoming the industry default).[<sup>6</sup>](#sources) In parallel, cost governance for agent fleets ("FinOps for agents": per-action → per-agent → fleet-level budgets) is forming as a discipline, though governance lags spend — a minority of organizations have any AI financial guardrails in place.[<sup>7</sup>](#sources) Both are Part V disciplines becoming organizational defaults.
+**Sandboxing-by-default and fleet FinOps are becoming table stakes.** Prompt injection scales with autonomy: malicious payloads in untrusted content are rising. The emerging baseline for agents touching untrusted input is OS-level isolation by default with policy engines the agent cannot override (Chapter 16, becoming the industry default).[<sup>6</sup>](#sources) In parallel, cost governance for agent fleets ("FinOps for agents": per-action → per-agent → fleet-level budgets) is forming as a discipline, though governance lags spend — a minority of organizations have any AI financial guardrails in place.[<sup>7</sup>](#sources) Both are Part V disciplines becoming organizational defaults.
 
 ### Speculative (plan around, don't bet on)
 
@@ -73,11 +73,11 @@ flowchart LR
 
 **A single-standard "agent internet."** Protocol consolidation is real, but competing protocols and governance friction mean one universal standard is not guaranteed.[<sup>3</sup>](#sources) Bet on *standard formats you can port*, not on one protocol winning.
 
-**Engineering teams replaced by fleets — probably not, near-term.** The role is shifting from implementer to orchestrator, but usage data undercuts the replacement narrative: engineers report AI assisting a majority of their work while *fully* delegating only a small fraction of tasks.[<sup>8</sup>](#sources) What stays human is consistent with this whole manual: deciding what to build, setting objectives, designing the guardrails, and owning final verification. Expect a trough of disillusionment as pilots fail to scale — driven by how agentic AI was sold and bought, not by whether the technique works.[<sup>9</sup>](#sources)
+**Engineering teams replaced by fleets — probably not, near-term.** The role is shifting from implementer to orchestrator, but usage data undercuts the replacement narrative: engineers report AI assisting a majority of their work while *fully* delegating only a small fraction of tasks.[<sup>8</sup>](#sources) What stays human is consistent with this whole manual: deciding what to build, setting objectives, designing the guardrails, and owning final verification. Expect a trough of disillusionment as pilots fail to scale — driven by how agentic AI was sold and bought rather than by whether the technique works.[<sup>9</sup>](#sources)
 
 ## Implement it
 
-You don't implement the future — you position for it, today, with choices that cost nothing now and save a rewrite later. Each is a decision already covered in this manual, made with the horizon in mind:
+You position for the future rather than implement it — today, with choices that cost nothing now and save a rewrite later. Each is a decision already covered in this manual, made with the horizon in mind:
 
 ```python
 # Positioning choices — each is "free now, portable later."
@@ -99,7 +99,7 @@ PORTABILITY_BETS = {
 # Re-test the loops you can't trust yet on a cadence — the horizon that blocks them is moving.
 ```
 
-Nothing here is a new technique; it's the manual's existing choices, made deliberately so the emerging shifts are adoptions, not rewrites.
+Nothing here is a new technique; it's the manual's existing choices, made deliberately so the emerging shifts are adoptions instead of rewrites.
 
 ## Builds on
 
@@ -114,7 +114,7 @@ This chapter extrapolates the manual's own disciplines: durable execution extend
 
 ## Takeaway
 
-Organize the future by confidence. Shipped and to be trusted: task horizons still doubling, durable execution as a platform primitive, and protocols consolidating under neutral governance. Emerging and to design toward: gated self-improving skills, verification-at-scale (the central unsolved problem), and sandbox-default plus fleet FinOps. Speculative and to plan around — not bet on: month-long horizons, a single-standard agent internet, and team replacement. You don't implement the future; you make the manual's existing choices — git-backed state, standard skill formats, gated write-back, sandbox-default, instrumented cost — so the shifts are cheap adoptions instead of rewrites.
+Organize the future by confidence. Shipped and to be trusted: task horizons still doubling, durable execution as a platform primitive, and protocols consolidating under neutral governance. Emerging and to design toward: gated self-improving skills, verification-at-scale (the central unsolved problem), and sandbox-default plus fleet FinOps. Speculative and to plan around — not bet on: month-long horizons, a single-standard agent internet, and team replacement. Rather than implement the future, you make the manual's existing choices — git-backed state, standard skill formats, gated write-back, sandbox-default, instrumented cost — so the shifts are cheap adoptions instead of rewrites.
 
 <!-- milestone-cumulative -->
 ## The loop so far — Part VII — the whole system, and the boundary

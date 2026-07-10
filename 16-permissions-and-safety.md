@@ -25,7 +25,7 @@ flowchart LR
 
 ## Concept
 
-Every prior chapter pushed toward more autonomy: stop prompting, schedule it, fan it out, run it in the cloud, make it crash-proof. This chapter is the counterweight: an unattended loop can do unattended damage, and the amount it *can* do — its **blast radius** — is something you set, not something you discover after the fact. The core tension is unavoidable: a loop that asks permission on every action isn't autonomous; a loop that asks on nothing can do anything. Loop safety is engineering that trade — and it *will* sometimes go wrong (recall the fleet that auto-merged over failing tests, Chapter 11), so the question is never "will it ever err" but "what's the worst it can do when it does."
+Every prior chapter pushed toward more autonomy: stop prompting, schedule it, fan it out, run it in the cloud, make it crash-proof. This chapter is the counterweight: an unattended loop can do unattended damage, and the amount it *can* do — its **blast radius** — is something you set deliberately in advance rather than discover after the fact. The core tension is unavoidable: a loop that asks permission on every action isn't autonomous; a loop that asks on nothing can do anything. Loop safety is engineering that trade, and it *will* sometimes go wrong (recall the fleet that auto-merged over failing tests, Chapter 11). It will eventually err, and the question that matters is what's the worst it can do when it does.
 
 ## How it works
 
@@ -42,8 +42,8 @@ Granting permissions "just in case" is pure downside: an unused permission can't
 
 Two layers of control, mapping to the two ways a loop goes wrong:
 
-- **Classifier-gating ("auto mode")** — instead of disabling all approval checks, route routine approvals through model classifiers with tiered allowlisting, so reads and in-project edits bypass the gate and only high-risk actions hit it.[<sup>1</sup>](#sources) This *reduces bad tries* but is **not a sandbox** — it gates decisions, it doesn't isolate execution.
-- **Sandboxing** — OS-level isolation (filesystem, network, process) that *bounds the damage* whatever the model decides. A structural control, not a probabilistic one.
+- **Classifier-gating ("auto mode")** — instead of disabling all approval checks, route routine approvals through model classifiers with tiered allowlisting, so reads and in-project edits bypass the gate and only high-risk actions hit it.[<sup>1</sup>](#sources) This *reduces bad tries* but is **not a sandbox**: it gates decisions without isolating execution.
+- **Sandboxing** — OS-level isolation (filesystem, network, process) that *bounds the damage* whatever the model decides. It is a structural control rather than a probabilistic one.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {'background':'#0d1117','primaryColor':'#21262d','primaryTextColor':'#e6edf3','primaryBorderColor':'#8b949e','lineColor':'#8b949e','fontSize':'13px'}}}%%
@@ -78,9 +78,9 @@ esac
 exit 0
 ```
 
-A hook the loop *cannot* bypass is stronger than any instruction in the prompt — it converts "please don't" into "you can't."
+A hook the loop *cannot* bypass is stronger than any instruction in the prompt: it removes the dangerous action instead of asking the model to avoid it.
 
-**Never let an unattended loop:** push/merge to `main`, hold prod credentials or deploy, run uncapped budget, execute fetched code without isolation, or operate outside the task's repo. Keep the *irreversible, high-consequence* actions (prod, main, spend, infra) behind a human or a non-overridable gate; let the loop own the *reversible, contained* work (edits on a branch, tests, PRs). **Reversibility is the dividing line.**
+**Never let an unattended loop:** push/merge to `main`, hold prod credentials or deploy, run uncapped budget, execute fetched code without isolation, or operate outside the task's repo. Keep the *irreversible, high-consequence* actions (prod, main, spend, infra) behind a human or a non-overridable gate; let the loop own the *reversible, contained* work (edits on a branch, tests, PRs). Reversibility is the dividing line.
 
 ## Builds on
 

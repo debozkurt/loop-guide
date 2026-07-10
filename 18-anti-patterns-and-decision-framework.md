@@ -38,7 +38,7 @@ Name a failure mode and you can catch it before it costs you. Each loop-specific
 
 ## How it works — place yourself, then decide
 
-**The maturity ladder.** Find your rung; it tells you what to build next. Each rung's problems must be solved before the next rung's leverage is safe — a fleet (Rung 5) of confident-mistake machines (no Rung 3 verification) is a catastrophe at scale.
+**The maturity ladder.** Find your rung; it tells you what to build next. Each rung's problems must be solved before the next rung's leverage is safe — a fleet (Rung 5) of confident-mistake machines (no Rung 3 verification) multiplies failure at scale.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {'background':'#0d1117','primaryColor':'#21262d','primaryTextColor':'#e6edf3','primaryBorderColor':'#8b949e','lineColor':'#8b949e','fontSize':'13px'}}}%%

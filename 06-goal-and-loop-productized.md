@@ -23,7 +23,7 @@ flowchart LR
 
 The outer loop has two control questions, and two slash commands answer them:[<sup>1</sup>](#sources)
 
-- **`/goal` — when does it stop?** You set a completion condition and the agent keeps working across turns until it's met. This is a **completion gate**: termination is decided by an external check, not by the agent declaring victory.
+- **`/goal` — when does it stop?** You set a completion condition and the agent keeps working across turns until it's met. This is a **completion gate**: an external check decides termination rather than the agent declaring victory.
 - **`/loop` — when does it start?** You schedule a prompt or slash-command to run unattended, on an interval (cron under the hood) or self-paced.
 
 Used together: a `/loop` that fires hourly and runs a `/goal` until the goal is met, then sleeps. The key word is *condition* — the completion gate replaces "the agent thinks it's done" with "a check says it's done."
@@ -67,7 +67,7 @@ def goal_met(cfg) -> bool:
     return rc == 0
 ```
 
-In Claude Code the same loop is one command — note the completion condition is a *checkable* statement, not a vibe:
+In Claude Code the same loop is one command, with the completion condition written as a *checkable* statement:
 
 ```
 /goal Make CI green. Keep fixing failures until `npm test` and `npm run typecheck`

@@ -27,11 +27,11 @@ The moment you own that endpoint, two engineering concerns appear that a trusted
 - **It's public.** Anyone who finds the URL can POST to it. An unauthenticated endpoint that starts a run is an endpoint that lets a stranger spend your token and run an agent on your repo. So **every delivery must be authenticated**, and authentication must **fail closed** — anything you can't verify is rejected, not run.
 - **It's at-least-once.** Forges re-deliver on any non-2xx or timeout, and a single issue emits several events you might act on (`opened`, then `labeled`). Without dedup, one issue spawns three runs racing on the same branch. So the trigger must be **idempotent**: keyed on the *issue identity*, one issue starts at most one run.
 
-These aren't loop concerns — they're *trigger* concerns. The loop body is unchanged; what changes is the front door, and a front door on the public internet is infrastructure you secure like any other.
+These are trigger concerns rather than loop concerns. The loop body is unchanged. What changes is the front door, and a front door on the public internet is infrastructure you secure like any other.
 
 ## How it works
 
-**Authentication is an HMAC over the body.** GitHub signs each delivery: it computes `HMAC-SHA256(secret, body)` and sends it as `X-Hub-Signature-256`. You recompute the same HMAC with your copy of the secret and compare — in **constant time**, so a timing side-channel can't leak the digest. A match proves two things at once: the sender holds the shared secret, *and* the body wasn't tampered with in flight. GitLab is weaker — it sends the secret as a static **token** in a header, not bound to the body — so a leaked GitLab token is directly replayable, and a GitLab listener compensates by pinning its own trusted identity instead of believing the payload's claimed author.
+**Authentication is an HMAC over the body.** GitHub signs each delivery: it computes `HMAC-SHA256(secret, body)` and sends it as `X-Hub-Signature-256`. You recompute the same HMAC with your copy of the secret and compare — in **constant time**, so a timing side-channel can't leak the digest. A match proves two things at once: the sender holds the shared secret, *and* the body wasn't tampered with in flight. GitLab is weaker: it sends the secret as a static **token** in a header, not bound to the body. A leaked GitLab token is therefore directly replayable, so a GitLab listener compensates by pinning its own trusted identity instead of believing the payload's claimed author.
 
 | Concern | A trusted trigger (cron, CLI) | A public trigger (webhook) |
 |---|---|---|
@@ -79,7 +79,7 @@ def handle_delivery(secret: str, headers: dict, body: bytes) -> tuple[int, str]:
 
 A hook the prompt cannot bypass is stronger than any instruction (Chapter 16); the same logic applies here: a *verified* trigger the attacker cannot forge is stronger than trusting the payload. The verification is structural, not advisory.
 
-> **Production reference — loopkit.** The companion reference tool **loopkit** (`~/Documents/loopkit`, the runnable form of this manual) implements this production-grade: `triggers.WebhookApp.dispatch` is the same verify → parse → authorize → dedupe → create path, behind both a GitHub (HMAC) and a GitLab (token) provider, fail-closed, with a Redis-backed dedupe for multi-replica listeners and the run bound to the **issue author**. Watch it decide six deliveries (forged → 401, signed → one run, retry + second event → dedup, unlabelled → ignored) with no socket and no tokens:
+> **Production reference — loopkit.** The companion reference tool **[loopkit](https://github.com/debozkurt/loop-kit)** (the runnable form of this manual) implements this production-grade: `triggers.WebhookApp.dispatch` is the same verify → parse → authorize → dedupe → create path, behind both a GitHub (HMAC) and a GitLab (token) provider, fail-closed, with a Redis-backed dedupe for multi-replica listeners and the run bound to the **issue author**. Watch it decide six deliveries (forged → 401, signed → one run, retry + second event → dedup, unlabelled → ignored) with no socket and no tokens:
 > ```bash
 > loopkit demo 20      # Triggers as infrastructure — the dispatch decision tree, scripted
 > ```
@@ -99,7 +99,7 @@ Chapter 12 established the trigger seam (the loop is indifferent to what woke it
 
 ## Takeaway
 
-A trigger is "what decides a run starts," and the loop never cared which trigger it was — but the moment the trigger faces the public internet, it becomes infrastructure you must secure. Authenticate every delivery with a constant-time HMAC and fail closed; dedupe on the issue identity so one issue is one run; gate on a label so runs are opt-in; and keep the run least-privilege because a *verified* delivery can still carry an *untrusted* body. The loop body doesn't change — you're hardening the front door, not the room.
+A trigger is "what decides a run starts," and the loop never cared which trigger it was — but the moment the trigger faces the public internet, it becomes infrastructure you must secure. Authenticate every delivery with a constant-time HMAC and fail closed; dedupe on the issue identity so one issue is one run; gate on a label so runs are opt-in; and keep the run least-privilege because a *verified* delivery can still carry an *untrusted* body. The loop body doesn't change; the hardening is all at the front door.
 
 ## Sources
 
@@ -107,5 +107,5 @@ A trigger is "what decides a run starts," and the loop never cared which trigger
 |---|--------|----------|------|
 | 1 | GitHub Docs — *Securing your webhooks* | HMAC-SHA256 body signature, `X-Hub-Signature-256`, constant-time compare | [docs.github.com](https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries) |
 | 2 | GitLab Docs — *Webhook secret token* | static token in header, not bound to the body (replay caveat) | [docs.gitlab.com](https://docs.gitlab.com/ee/user/project/integrations/webhooks.html) |
-| 3 | Reference implementation — **loopkit** (`triggers.py`, `loopkit demo 20`) | the verify→parse→authorize→dedupe→create path, two forges, fail-closed, issue-author binding | `~/Documents/loopkit` (local) |
+| 3 | Reference implementation — **loopkit** (`triggers.py`, `loopkit demo 20`) | the verify→parse→authorize→dedupe→create path, two forges, fail-closed, issue-author binding | [github.com/debozkurt/loop-kit](https://github.com/debozkurt/loop-kit) |
 | 4 | This manual, Chapters 12 & 16 | the trigger seam (one create path) and the blast-radius envelope for untrusted input | [Ch 12](./12-dynamic-workflows-and-fan-out.md) · [Ch 16](./16-permissions-and-safety.md) |

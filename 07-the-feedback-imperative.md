@@ -8,7 +8,7 @@
 
 State it plainly:
 
-> **An open loop that writes code with no feedback is a machine for generating confident mistakes. A loop that writes, runs, reads the result, and corrects is the thing that works. The loop is not the magic — the feedback is.**
+> **An open loop that writes code with no feedback is a machine for generating confident mistakes. A loop that writes, runs, reads the result, and corrects is the thing that works. The feedback is what makes it work, not the loop itself.**
 
 Every other production concern (halting, durability, orchestration) assumes this one is solved. If the loop can't tell good output from bad, making it faster, cheaper, and more parallel just reaches ruin sooner. The result is not theoretical: a published study shows that **intrinsic self-correction** — a model re-reading its own reasoning with no external signal — does *not* reliably improve correctness and can degrade it, while **feedback-driven correction** against an external signal works.[<sup>1</sup>](#sources) So the "check" in "a loop that checks itself" must be grounded outside the model's own confidence: a failing test, a compiler error, a different model's verdict.
 
@@ -91,7 +91,7 @@ Chapter 6's `goal_met` (a bare exit-code check) becomes `verification_gate` retu
 
 ## Takeaway
 
-A loop is only as good as its feedback. Open-loop generation produces confident mistakes; closed-loop generation drives toward the target using an external error signal. The model cannot reliably grade its own homework, so the gate must be external (tests, compiler, a different model), end-to-end (reach the real goal, not a proxy), and wired so the failure becomes the next tick's input — and *stable*: a gate that flips verdict on unchanged code corrupts every stop decision, so prove it's deterministic before you trust it as the loop's oracle (Chapter 9).
+A loop is only as good as its feedback. Open-loop generation produces confident mistakes; closed-loop generation drives toward the target using an external error signal. The model cannot reliably grade its own homework, so the gate must be external (tests, compiler, a different model), end-to-end (reach the real goal, not a proxy), and wired so the failure becomes the next tick's input. It must also be *stable*: a gate that flips verdict on unchanged code corrupts every stop decision, so prove it's deterministic before you trust it as the loop's oracle (Chapter 9).
 
 ## Sources
 

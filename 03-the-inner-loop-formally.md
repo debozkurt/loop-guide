@@ -37,7 +37,7 @@ flowchart LR
     CHK -- yes --> STOP["halt"]
 ```
 
-From the outer loop's point of view, the entire agent — inner loop, tools, reasoning — is a single function call: hand it a prompt and the current repo state, it returns a new repo state. **The model is a subroutine.**[<sup>1</sup>](#sources) Your job is the control flow around that call: what prompt to feed next, and when to stop.
+From the outer loop's point of view, the entire agent — inner loop, tools, reasoning — is a single function call: hand it a prompt and the current repo state, it returns a new repo state. The model is a subroutine.[<sup>1</sup>](#sources) Your job is the control flow around that call: what prompt to feed next, and when to stop.
 
 ## How it works
 

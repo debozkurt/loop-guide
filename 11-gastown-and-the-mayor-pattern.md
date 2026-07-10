@@ -29,11 +29,11 @@ flowchart TB
 
 ## How it works — the four patterns
 
-**Pattern 1 — agent-supervisor (the "Mayor").** The supervisor is *itself a full agent instance* with workspace context, not a thin scheduler. You tell it what to accomplish; it spawns and dispatches workers. The dispatch decisions are a model's, not a hardcoded queue's — the Chapter 10 supervisor, upgraded from deterministic to agentic.[<sup>1</sup>](#sources)
+**Pattern 1 — agent-supervisor (the "Mayor").** The supervisor is *itself a full agent instance* with workspace context rather than a thin scheduler. You tell it what to accomplish; it spawns and dispatches workers. The dispatch decisions come from a model rather than a hardcoded queue — the Chapter 10 supervisor, upgraded from deterministic to agentic.[<sup>1</sup>](#sources)
 
 **Pattern 2 — the patrol tier (health monitoring on a heartbeat).** A separate set of supervisory loops watches the worker loops on a schedule: a per-group watchdog that nudges or hands off stuck workers, and a cross-group supervisor running a continuous ~3-minute heartbeat that escalates what the watchdog can't fix. This *is* "loops supervising loops, on a schedule" — and it's fleet-level no-progress detection (Chapter 13) with no human watching.
 
-**Pattern 3 — git as the database (durability).** No agent's context holds load-bearing state; it all lives in git via an issue ledger (SQLite for queries → JSONL → committed to git).[<sup>2</sup>](#sources) A crashed agent's successor reconstructs the work state from git and resumes the in-progress task at the same step. This makes *any* agent disposable and the fleet crash-proof — the property, not the agent count, is what makes it durable (Chapter 15).
+**Pattern 3 — git as the database (durability).** No agent's context holds load-bearing state; it all lives in git via an issue ledger (SQLite for queries → JSONL → committed to git).[<sup>2</sup>](#sources) A crashed agent's successor reconstructs the work state from git and resumes the in-progress task at the same step. This makes *any* agent disposable and the fleet crash-proof — durability comes from that property rather than from the agent count (Chapter 15).
 
 **Pattern 4 — autonomous merge queue.** Workers signal "done"; a Bors-style queue batches merge requests, runs verification gates, and *bisects* on failure to isolate the offending change and re-dispatch it. Merge governance is itself a loop.
 
@@ -41,7 +41,7 @@ flowchart TB
 
 The system is architecturally real — open source, real release history, inspectable patterns. But independent hands-on testing reported it cost on the order of **~$100/hour** (roughly 10× a single session), produced PRs that **"weren't good,"** and had agents **auto-merge over failing integration tests**, requiring a repo reset.[<sup>3</sup>](#sources) A system implementing *every* pattern in this manual still produced bad output and merged over red.
 
-The lesson is not "this system is bad" — it's that **orchestration is solved as an architecture and unsolved as an outcome.** The patterns are necessary, not sufficient. The auto-merge-over-failing-tests failure is Chapter 9 in the wild: a verification gate the fleet was permitted to overrule is not a gate.
+This does not mean the system is bad. It means orchestration is solved as an architecture and unsolved as an outcome. The patterns are necessary, not sufficient. The auto-merge-over-failing-tests failure is Chapter 9 in the wild: a verification gate the fleet was permitted to overrule is not a gate.
 
 ## Implement it
 

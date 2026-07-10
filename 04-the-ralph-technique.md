@@ -6,7 +6,7 @@
 
 ## Concept
 
-The **ralph technique** is the simplest outer loop that works: pipe the *same fixed prompt* into a coding agent every tick, give the agent a fresh context each time, and keep all durable progress in files and git — never in the conversation.[<sup>1</sup>](#sources) Its power is not the code (which is trivial); it is the **discipline** the code enforces: by discarding the conversation every tick, it sidesteps context degradation (Chapter 5) without any machinery.
+The **ralph technique** is the simplest outer loop that works: pipe the *same fixed prompt* into a coding agent every tick, give the agent a fresh context each time, and keep all durable progress in files and git — never in the conversation.[<sup>1</sup>](#sources) Its power comes from the **discipline** the code enforces, not from the code, which is trivial. By discarding the conversation every tick, it sidesteps context degradation (Chapter 5) without any machinery.
 
 Two rules define it:
 
@@ -32,7 +32,7 @@ flowchart LR
 
 The diagram's two ideas: **ephemeral context inside one tick** versus **durable filesystem across ticks** (the loop-back edge carries nothing), and **one task per tick** (trying to do everything in one tick reintroduces the long-context problem ralph exists to avoid).
 
-A production refinement: split the fixed prompt into a **plan** mode and a **build** mode, and prefer *re-running the loop on fresh code with the same prompt* over having the agent merge its own branches — let the spec, not the diff, be the source of truth.[<sup>2</sup>](#sources)
+A production refinement: split the fixed prompt into a **plan** mode and a **build** mode, and prefer *re-running the loop on fresh code with the same prompt* over having the agent merge its own branches, so the spec is the source of truth rather than the diff.[<sup>2</sup>](#sources)
 
 The one thing ralph lacks is **durability beyond an open terminal**: there is no checkpoint or resume, so if the process dies the loop dies (the *work* survives in git; the *loop* doesn't restart itself). That gap is the seam where orchestration and durability begin (Chapters 11, 15).
 

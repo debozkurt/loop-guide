@@ -11,7 +11,7 @@
 > **Fresh-context question (Ch 5):** could the next tick pick up using only the files on disk?
 > **Durability question (Ch 15):** if the process died right now and restarted from nothing, could it pick up using only the files on disk?
 
-Same answer, same requirement: **no load-bearing state in any agent's context.** If the loop's memory lives only in a conversation, both rot *and* a crash destroy it. If it lives in git and files, both are non-events. This is why fresh-context discipline came early — it was durability in disguise.
+Same answer, same requirement: **no load-bearing state in any agent's context.** If the loop's memory lives only in a conversation, both rot *and* a crash destroy it. If it lives in git and files, both are non-events. This is why fresh-context discipline came early: it was durability under a different name.
 
 ## How it works
 
@@ -24,7 +24,7 @@ flowchart LR
     L2 --> L3["Level 3<br/>committed + pushed<br/>(survives the machine)"]
 ```
 
-The rule: **commit every tick, push for Level 3.** The commit is the checkpoint; git is the durable store; the commit message plus the plan file form the resume point. Generalized, this is "git is the database" — when the work queue and progress ledger themselves live in git, crash recovery is automatic and fleet-wide: any agent can die and its successor reads the ledger and continues.[<sup>1</sup>](#sources)
+The rule: **commit every tick, push for Level 3.** The commit is the checkpoint. Git is the durable store. The commit message plus the plan file form the resume point. Generalized, this is "git is the database" — when the work queue and progress ledger themselves live in git, crash recovery is automatic and fleet-wide: any agent can die and its successor reads the ledger and continues.[<sup>1</sup>](#sources)
 
 Two further properties make recovery real:
 

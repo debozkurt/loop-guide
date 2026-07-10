@@ -19,7 +19,7 @@ flowchart LR
 
 ## How it works
 
-**Design 1 — the ReAct loop (formalized 2022).** A model produces a reasoning trace, takes an action (a tool call), reads the observation (the result), and repeats until done.[<sup>1</sup>](#sources) Interleaving reasoning with action beats reasoning-only and acting-only, because the reasoning lets the model revise its plan and the actions pull in real facts. This is the *inner* loop inside one agent turn — the heartbeat every later design wraps. (Chapter 3 builds it in code.) Its limit: one agent, a human supervising each task.
+**Design 1 — the ReAct loop (formalized 2022).** A model produces a reasoning trace, takes an action (a tool call), reads the observation (the result), and repeats until done.[<sup>1</sup>](#sources) Interleaving reasoning with action beats reasoning-only and acting-only, because the reasoning lets the model revise its plan and the actions pull in real facts. This is the *inner* loop inside one agent turn — the cycle every later design wraps. (Chapter 3 builds it in code.) Its limit: one agent, a human supervising each task.
 
 **Design 2 — unbounded self-prompting (2023).** Give the model a goal and let it prompt *itself*. Famous for one failure: it doesn't terminate.[<sup>2</sup>](#sources) With a vague goal, no clarifying questions, and recursive self-verification, it loops forever and burns budget. Its lasting contribution is the failure taxonomy that every guardrail in Part V answers: no stopping condition, no external verification, no cost ceiling. The technique was sound; the *harness* was missing.
 
@@ -27,7 +27,7 @@ flowchart LR
 
 **Design 4 — productized completion gates (early 2026).** Wrap the fixed-prompt loop with a check that decides *done*: a completion condition that a separate validator confirms, rather than the agent declaring victory.[<sup>4</sup>](#sources) This is what `/goal` and `/loop` ship (Chapter 6). It fixes design 2's "never stops" by making termination external and checkable.
 
-**Design 5 — orchestration (now).** A supervisor loop dispatches work to many worker loops, monitors them on a schedule, and stores state in git so work survives a crash.[<sup>5</sup>](#sources) This is the genuinely new layer (Part IV): the loop, not the task, becomes the unit of work; loops supervise loops; scheduling replaces the human kickoff; durability is explicit.
+**Design 5 — orchestration (now).** A supervisor loop dispatches work to many worker loops, monitors them on a schedule, and stores state in git so work survives a crash.[<sup>5</sup>](#sources) This is the genuinely new layer (Part IV). The loop, not the task, becomes the unit of work. Loops supervise loops. Scheduling replaces the human kickoff. Durability is explicit.
 
 The takeaway from the ladder: "single-agent loops are old hat" and "orchestration loops are the frontier" are both true — about different designs. Name the design before you argue about it.
 
@@ -48,7 +48,7 @@ while True:                          # no iteration cap        → Chapter 13
     # no durable state / resume       → Chapter 15
 ```
 
-Run that against a real task and it will, given enough iterations, spend an unbounded amount producing confident garbage. Annotate each missing line with the chapter that supplies it and you have the table of contents for Part II onward. The fix is not a better model — it's the harness.
+Run that against a real task and it will, given enough iterations, spend an unbounded amount producing confident garbage. Annotate each missing line with the chapter that supplies it and you have the table of contents for Part II onward. The fix is the harness, not a better model.
 
 ## Builds on
 

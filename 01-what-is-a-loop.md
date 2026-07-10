@@ -21,7 +21,7 @@ A cron job runs a fixed script on a timer. A loop runs a *model* that inspects t
 | After acting | nothing — idle until the next tick | the model/loop **checks whether it worked** |
 | Continue? | only on the fixed schedule | the loop **decides** whether to keep going |
 
-The engineering of loops is everything you wrap around that decision so it produces value instead of running off a cliff. That wrapping — verification, halting, durability, isolation, orchestration — is the rest of this manual.
+The engineering of loops is everything you wrap around that decision so it produces value instead of running unbounded. That wrapping — verification, halting, durability, isolation, orchestration — is the rest of this manual.
 
 ## How it works
 
@@ -31,7 +31,7 @@ There are three levels of automation, and naming your current level tells you wh
 2. **Prompt an agent** — you describe each step; the agent writes the code; you drive every turn.
 3. **Author a loop** — you write the program that prompts the agent; it drives the turns. You set the *intent* and the *stopping behavior* once; the model makes the per-tick decisions.
 
-This manual is about getting fluent at level 3. The skill is not prompting better — it's designing the control flow around a model call so the model can run unattended without going wrong. Note that level-3 does not remove the engineer: someone still decides *what* to build, defines "done," and writes the loop. The work moves up an altitude; it does not disappear.[<sup>1</sup>](#sources)
+This manual is about getting fluent at level 3. The skill is designing the control flow around a model call so the model can run unattended without going wrong, rather than writing better prompts. Note that level-3 does not remove the engineer: someone still decides *what* to build, defines "done," and writes the loop. The work moves up an altitude; it does not disappear.[<sup>1</sup>](#sources)
 
 ## Implement it
 
@@ -47,7 +47,7 @@ while not done:
     done   = goal_met(state)       # check — and decide whether to continue
 ```
 
-Three lines carry the whole idea: `agent.decide` is the decision cron never had; `goal_met` is the stopping logic that keeps it from running forever; `read_state` is what keeps each tick grounded in reality instead of the model's memory. Every later chapter hardens exactly one of these three — the decision (Parts I–II), the check (Part III), and the surrounding safety, durability, and scale (Parts IV–VI).
+Three lines carry the whole idea. `agent.decide` is the decision cron never had. `goal_met` is the stopping logic that keeps it from running forever. `read_state` is what keeps each tick grounded in reality instead of the model's memory. Every later chapter hardens exactly one of these three — the decision (Parts I–II), the check (Part III), and the surrounding safety, durability, and scale (Parts IV–VI).
 
 ## Builds on
 
@@ -56,7 +56,7 @@ Nothing — this is the seed. Hold the three-line skeleton in your head; the res
 ## Pitfalls
 
 1. **Confusing "I scheduled a prompt" with "I wrote a loop."** Scheduling a fixed prompt is a cron job. It becomes a loop only when a model decides the next action *and* something checks the result and decides whether to continue.
-2. **Omitting the "decide whether it's done" line.** A loop with no stopping logic is a money fire, not a loop. The most common production failure is the loop that never halts (Chapter 13).
+2. **Omitting the "decide whether it's done" line.** A loop with no stopping logic just loses money, and by this manual's definition it isn't a loop at all. The most common production failure is the loop that never halts (Chapter 13).
 3. **Taking viral productivity numbers literally.** Reported figures in this space are routinely inflated in retelling; design against verified mechanics, not headlines. Where this manual cites a number, it flags whether it's measured or anecdotal.
 
 ## Takeaway

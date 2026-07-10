@@ -6,13 +6,13 @@
 
 ## Concept
 
-The most-feared production failure is the loop that doesn't stop: unbounded iterations and billing surprises orders of magnitude over budget.[<sup>1</sup>](#sources) Every serious loop converges on the same **three hard stops**, and they are mandatory, not advanced:
+The most-feared production failure is the loop that doesn't stop: unbounded iterations and billing surprises orders of magnitude over budget.[<sup>1</sup>](#sources) Every serious loop converges on the same **three hard stops** — mandatory baseline, not advanced tuning:
 
 1. **Maximum iteration count** — bounds *count*.
 2. **No-progress detection** — bounds *wasted motion*.
 3. **Budget ceiling** — bounds *money*.
 
-A loop without all three is not a loop you can run unattended; it's an unbounded bill with a model in the body. These are *safety* terminals; the completion gate (Chapter 6–7) is the *success* terminal. There are three ways to stop safely and one to succeed, and a robust loop treats all four as first-class — recording which fired, because "I finished" and "I gave up safely" mean very different things.
+A loop without all three cannot be run unattended — it can run up an unbounded bill. These are *safety* terminals; the completion gate (Chapter 6–7) is the *success* terminal. There are three ways to stop safely and one to succeed, and a robust loop treats all four as first-class, recording which fired, because "I finished" and "I gave up safely" mean very different things.
 
 ## How it works
 
@@ -36,6 +36,8 @@ flowchart TB
 ```
 
 **Iteration cap** is the universal backstop — bounds count, not cost or value, so it's necessary but never sufficient alone. **Budget ceiling** bounds money directly and must be enforced *structurally by your harness*, not requested of the model ("be mindful of cost" is not a ceiling; "the harness kills the process at $20" is); enforce it at the **fleet** level too, since one runaway worker is invisible when each tick looks cheap. **No-progress detection** is the hard one — it catches the loop that's *stuck*: iterating, spending, and not advancing. The signal is repetition — an empty/unchanged diff, the same error N times, an unchanged state hash. There's no canonical algorithm;[<sup>2</sup>](#sources) the difficulty is distinguishing "productively thinking" (a tick that researches without editing) from "actually stuck," so detect unchanged *state* over several ticks, not lack of edits on one.
+
+Two limits of counter-based stops are worth naming, because real runs hit them. First, the state signature catches a *mechanical* stall — an unchanged diff — but misses **semantic thrash**: a loop that edits something every tick while oscillating between two wrong approaches changes the hash each time, so the counter never trips even though it makes no real progress. Catching that needs a signal on the *content* of the churn — the same error class N times, a diff that keeps reverting to a prior state — not just whether the bytes changed. Second, all three stops end the same way: the loop gives up and halts. But some halts don't mean "out of budget"; they mean "stuck on an ambiguity a human must resolve," and burning to the iteration cap to discover that wastes the whole budget. The emerging fourth terminal is a **`NEEDS_HUMAN`** escalation: the loop detects it's thrashing or confidently uncertain and stops *early* to ask, rather than late to give up. Both are still under-built across the ecosystem; treat them as the direction the three counters point, not a solved problem.
 
 ## Implement it
 
@@ -95,6 +97,7 @@ Chapter 7's `run_loop` had a placeholder `for i in range(cfg.max_iter)` and retu
 3. **No-progress detection that punishes thinking.** Halting on the first no-edit tick kills loops that are legitimately researching. Use unchanged *state* over several ticks.
 4. **Halting without recording why.** Undifferentiated "stopped" hides success from giving-up. Log the terminal.
 5. **Per-worker limits with no fleet limit.** Each tick looks cheap while the fleet bleeds. Enforce the budget at the aggregate.
+6. **Assuming the counters catch every stuck loop.** An unchanged-state signature misses a loop that thrashes (edits every tick but never converges) or is confidently wrong. Add a content-level signal for semantic thrash, and a `NEEDS_HUMAN` terminal that escalates ambiguity *early* instead of burning to the cap.
 
 ## Takeaway
 
