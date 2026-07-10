@@ -8,7 +8,7 @@ It is **Claude Code first**, with **OpenAI Codex parity** flagged throughout for
 
 ## The one-sentence thesis
 
-**A loop is cron plus a decision-maker in the body.** A cron job runs a fixed script; a loop runs a *model* that inspects state, decides the next action, performs it, checks whether it worked, and decides whether to continue. Everything in this manual is the engineering you wrap around that decision so it produces value instead of running off a cliff.
+**A loop is a control program that drives a coding agent toward a goal.** You give it the goal and a check; each tick it primes the agent with a fresh context, lets it change the repository, runs the check, and decides whether the goal is met or another pass is needed — stopping on success, or on a hard limit so it never runs forever. The model becomes a subroutine, and the control flow around it is the part you write. Everything in this manual is the engineering you wrap around that decision so it produces value instead of running off a cliff.
 
 ## How this manual is built
 

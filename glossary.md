@@ -7,7 +7,7 @@ Every term used in this curriculum, one or two sentences each. Ordered roughly f
 ---
 
 ### Loop (agentic loop)
-A small program you write that prompts a coding agent for you, reads what it produced, decides whether it's done, and prompts it again if not. The defining property: a **model**, not a hardcoded branch, decides the next action each tick. "Cron plus a decision-maker in the body."
+A small program you write that prompts a coding agent for you, reads what it produced, decides whether it's done, and prompts it again if not. The defining property: a **model**, not a hardcoded branch, decides the next action each tick. "A control program that drives a coding agent toward a goal."
 
 ### Loop body
 The decision-making step inside one iteration — the model invocation that looks at current state and chooses what to do. The thing cron never had.
