@@ -147,3 +147,7 @@ The manual was built with multi-agent research and adversarial verification of t
 | Reality check | AI-spend cap reporting; agentic-AI hype-cycle survey (2026) | [techcrunch.com](https://techcrunch.com/2026/06/02/uber-caps-employee-ai-spending-after-blowing-through-budget-in-four-months/) · [gartner.com](https://www.gartner.com/en/articles/hype-cycle-for-agentic-ai) |
 
 **Verification notes carried in the chapters:** several widely-repeated figures are inflated in retelling — a "$297 programming language" (a conflation of two separate facts), "deleted his IDE / 100% of contributions" (an embellishment of a softer original), and "4% of GitHub commits" (a credible analyst *estimate*, not a measured figure). The manual cites the primary and designs against verified mechanics. The framework matters less than the discipline, so pick the harness that fits your stack.
+
+## License
+
+The guide's text is under [CC BY 4.0](LICENSE-docs). The capstone code is under the [MIT License](LICENSE).
