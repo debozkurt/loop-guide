@@ -75,4 +75,4 @@ Durability is surviving a restart with at most one tick of lost work, and it's t
 |---|--------|----------|------|
 | 1 | "Beads" git-backed issue ledger (Oct 2025) | "git is the database"; crash-resume; fleet-wide recovery | [steve-yegge.medium.com](https://steve-yegge.medium.com/introducing-beads-a-coding-agent-memory-system-637d7d92514a) |
 | 2 | Cloud Routines vs Remote Control docs | infrastructure-time (managed cloud) vs attention-time (your machine) | [platform.claude.com](https://platform.claude.com/docs/en/api/claude-code/routines-fire) |
-| 3 | Companion curriculum, `agents/12-state-recovery.md` | checkpointers, idempotent resume in depth | [local](../agents/12-state-recovery.md) |
+| 3 | Companion curriculum, `agents/12-state-recovery.md` | checkpointers, idempotent resume in depth | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/12-state-recovery.md) |

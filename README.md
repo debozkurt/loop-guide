@@ -1,5 +1,9 @@
 # Agentic Loops — An Engineering Manual for Self-Governed Coding
 
+A 21-chapter manual on running coding agents in loops that check their own work, stop at hard limits, and resume after a crash. Each chapter adds one piece to a small stdlib-only harness. The [capstone](./capstone/README.md) is that harness, finished and runnable. [loopkit](https://github.com/debozkurt/loop-kit) builds the same patterns out as a tool.
+
+**Talk:** *Stop Prompting, Start Looping: Principles of Loop Engineering*, Commit Your Code 2026 ([agenda](https://www.commityourcode.com/agenda), [slides](https://debozkurt.github.io/loop-kit/docs/stop-prompting-start-looping.html)) covers the core ideas.
+
 > *Last verified: June 2026. This is a fast-moving topic; product names, slash commands, and prices are snapshots, not gospel. The **patterns** underneath — the loop body, the verification gate, the three hard stops, durability, skills-as-units — are what stabilize. Where a number is unverified or inflated in retelling, the relevant chapter flags it.*
 
 This manual teaches you to **design loops that drive coding agents**: a control program that invokes the agent, reads what it produced, decides whether the goal is met, and — if not — invokes it again. You stop typing prompts and start authoring the program that types them. The model becomes a subroutine; your job becomes the control flow around it.
@@ -49,7 +53,7 @@ Read a chapter's code next to the [capstone harness](./capstone/harness/) to see
 - **Experienced** (you orchestrate already): Part IV (orchestration), Part V (halting, economics, durability, safety), and Part VIII (deploying the loop into the forge ecosystem).
 - **Everyone** ends at the [capstone](./capstone/README.md): a runnable harness, a lab to point it at your own repo, and a teaching kit for a team.
 
-This manual complements two existing curricula and does not duplicate them: [`agents/`](../agents/README.md) (building an agent — the *inner* loop) and [`claude-code/`](../claude-code/README.md) (Claude Code mechanics). This one is the *outer* loop wrapped around the whole agent, running unattended. Use the [glossary](./glossary.md) for terms.
+This manual complements two existing curricula and does not duplicate them: [agent-docs](https://github.com/debozkurt/agent-docs) (building an agent — the *inner* loop) and [claude-intro](https://github.com/debozkurt/claude-intro/tree/master/claude-code-docs) (Claude Code mechanics). This one is the *outer* loop wrapped around the whole agent, running unattended. Use the [glossary](./glossary.md) for terms.
 
 ---
 
@@ -103,13 +107,13 @@ This manual complements two existing curricula and does not duplicate them: [`ag
 ### Capstone & Reference
 
 - [The Self-Governed Loop](./capstone/README.md) — runnable harness + lab guide + teaching kit
-- **[loopkit](#reference-implementation)** — the production-grade reference implementation of this manual; Chapters 20–21 cite its runnable labs
+- **[loopkit](#reference-implementation)** — the reference implementation of this manual; Chapters 20–21 cite its runnable labs
 - [Graduating to loopkit](./graduating-to-loopkit.md) — the concept→capstone→loopkit map: which manual idea becomes which loopkit part, when to make the move, and where the two meet at the frontier
 - [Prior Art & Lessons from the Field](./prior-art.md) — the canonical harnesses (Anthropic, SWE-agent, Aider, LangGraph, SWE-bench, τ-bench…) mapped to the manual's patterns: what validates them, the sharper lessons (ACI, the two-oracle gate, `pass^k`, verifier hacking), and where the field is heading
 - [Glossary](./glossary.md)
 
 <a id="reference-implementation"></a>
-**Reference implementation — loopkit.** Where the [capstone](./capstone/README.md) is *the manual's code made whole* — minimal, stdlib-only, readable end to end — **[loopkit](https://github.com/debozkurt/loop-kit)** is the same patterns built out as a **product**: the 2×2 adapter matrix with measured cost, a cloud control plane, credential hardening against prompt injection, and the three deployment tiers of Chapter 21. The capstone is for *reading and running the ideas*; loopkit is for *seeing them at production scale*. It mirrors this manual chapter-for-chapter and ships runnable `demo`/`learn` labs — Chapters 20–21 point at `loopkit demo 20` (triggers) and `loopkit demo 21` (the CI tier). Keep them separate on purpose: the manual stays dependency-free; the product carries the operational weight. When you're ready to make the move, [**Graduating to loopkit**](./graduating-to-loopkit.md) maps each concept and capstone artifact to its loopkit counterpart.
+**Reference implementation — loopkit.** Where the [capstone](./capstone/README.md) is *the manual's code made whole* — minimal, stdlib-only, readable end to end — **[loopkit](https://github.com/debozkurt/loop-kit)** is the same patterns built out as a **product**: the 2×2 adapter matrix with measured cost, a cloud control plane, credential hardening against prompt injection, and the three deployment tiers of Chapter 21. The capstone is for *reading and running the ideas*; loopkit is for *running them on real repositories*. It mirrors this manual chapter-for-chapter and ships runnable `demo`/`learn` labs — Chapters 20–21 point at `loopkit demo 20` (triggers) and `loopkit demo 21` (the CI tier). Keep them separate on purpose: the manual stays dependency-free; the product carries the operational weight. When you're ready to make the move, [**Graduating to loopkit**](./graduating-to-loopkit.md) maps each concept and capstone artifact to its loopkit counterpart.
 
 ---
 

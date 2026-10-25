@@ -146,5 +146,5 @@ flowchart LR
 |---|--------|----------|------|
 | 1 | Claude Code CHANGELOG (v2.1.154+) | dynamic workflows ("tens to hundreds of agents"); subagent nesting | [github.com/anthropics/claude-code](https://raw.githubusercontent.com/anthropics/claude-code/refs/heads/main/CHANGELOG.md) |
 | 2 | Cloud Routines / triggers docs | unattended runs on schedule, GitHub event, or HTTP trigger | [platform.claude.com](https://platform.claude.com/docs/en/api/claude-code/routines-fire) |
-| 3 | Companion curriculum, `agents/29-modern-patterns.md` | the five-trigger event-loop framing (one loop body, many triggers) | [local](../agents/29-modern-patterns.md) |
+| 3 | Companion curriculum, `agents/29-modern-patterns.md` | the five-trigger event-loop framing (one loop body, many triggers) | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/29-modern-patterns.md) |
 | 4 | FunSearch (Nature 2023); AlphaEvolve (DeepMind, 2025) | the evolutionary topology — population + scorer + reseed winners — discovers solutions a single pass misses | [nature.com/s41586-023-06924-6](https://www.nature.com/articles/s41586-023-06924-6) · [deepmind.google](https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/) |

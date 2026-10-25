@@ -109,4 +109,4 @@ Most of loop engineering is making the loop stop. The three hard stops — itera
 |---|--------|----------|------|
 | 1 | Production accounts of unbounded loops (2026) | infinite loops and billing surprises are the primary failure mode | reported across 2026 practitioner discourse |
 | 2 | Loop-engineering practitioner guide (2026) | the "same error / empty diff / failing test N×" no-progress heuristic (a blog pattern, not a standard) | [explainx.ai](https://explainx.ai/blog/loop-engineering-coding-agents-claude-code-guide-2026) |
-| 3 | Companion curriculum, `agents/05`, `agents/21` | the inner-loop recursion limit; tool loops as the cost center | [local](../agents/05-execution-loop.md) |
+| 3 | Companion curriculum, `agents/05`, `agents/21` | the inner-loop recursion limit; tool loops as the cost center | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/05-execution-loop.md) |

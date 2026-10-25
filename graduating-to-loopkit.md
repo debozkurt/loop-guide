@@ -2,14 +2,14 @@
 
 [Index](./README.md) · Builds on: [the capstone](./capstone/README.md) · [Prior art & field lessons](./prior-art.md)
 
-> *This manual teaches the patterns against a minimal, stdlib-only harness you can read end to end. **[loopkit](https://github.com/debozkurt/loop-kit)** is those same patterns built out as a product. This page is the bridge: which manual concept becomes which loopkit part, when to make the move, and where both still have open work. Read it after the [capstone](./capstone/README.md) — once you've run the ideas, this is how you run them in production.*
+> *This manual teaches the patterns against a minimal, stdlib-only harness you can read end to end. **[loopkit](https://github.com/debozkurt/loop-kit)** is those same patterns built out as a product. This page is the bridge: which manual concept becomes which loopkit part, when to make the move, and where both still have open work. Read it after the [capstone](./capstone/README.md) — once you've run the ideas, this is how you run them on real repositories.*
 
 ## Two separate artifacts
 
 The [capstone harness](./capstone/harness/) and loopkit are deliberately **not** the same codebase, and the separation is intentional:
 
 - **The capstone** is the manual's code made whole — minimal, dependency-free, every line legible. It exists so you can *read and run the ideas*. You extend it by editing one `loop.py`.
-- **loopkit** is the production realization — a 2×2 adapter matrix with exact per-model cost, an in-process and a Kubernetes fleet, credential hardening against prompt injection, a keyless-executor sandbox, and the three deployment tiers of [Chapter 21](./21-the-ci-deployment-tier.md). It exists so you can *operate the ideas at scale*.
+- **loopkit** is the full implementation — a 2×2 adapter matrix with exact per-model cost, an in-process and a Kubernetes fleet, credential hardening against prompt injection, a keyless-executor sandbox, and the three deployment tiers of [Chapter 21](./21-the-ci-deployment-tier.md). It exists so you can *run the ideas on real repositories, unattended*.
 
 They share a common core — the loop body, the two-tier gate, the three hard stops, git-backed durability, skills-as-units — so moving from one to the other means recognising familiar parts rather than relearning them. The capstone stays dependency-free on purpose, while loopkit carries the operational weight so the manual doesn't have to.
 

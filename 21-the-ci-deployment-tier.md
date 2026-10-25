@@ -132,7 +132,7 @@ There are three deployment tiers — local, CI, cloud fleet — and they differ 
 <!-- milestone-cumulative -->
 ## The loop so far — deployed
 
-The self-governed loop is complete and now has a home. It primes a fresh context, calls the agent, verifies the result against gates it can't game, reviews each commit, halts on the three hard stops, commits durably, and runs least-privilege inside a sandbox. And it runs where the work is: on your laptop by hand, in CI off a labelled issue with zero infrastructure, or across your own fleet when scale demands it. It also doesn't stop at "PR opened": when a human reviews the PR and asks for changes, the same loop picks the branch back up and revises, so the lifecycle runs all the way to merge. The [capstone](./capstone/README.md) is the harness assembled and runnable; **loopkit** is its production-grade form, deployed across all three tiers.
+The self-governed loop is complete and now has a home. It primes a fresh context, calls the agent, verifies the result against gates it can't game, reviews each commit, halts on the three hard stops, commits durably, and runs least-privilege inside a sandbox. And it runs where the work is: on your laptop by hand, in CI off a labelled issue with zero infrastructure, or across your own fleet when scale demands it. It also doesn't stop at "PR opened": when a human reviews the PR and asks for changes, the same loop picks the branch back up and revises, so the lifecycle runs all the way to merge. The [capstone](./capstone/README.md) is the harness assembled and runnable; **loopkit** is its full implementation, built for all three tiers.
 
 ## Sources
 

@@ -87,4 +87,4 @@ Long conversations rot — attention dilutes, early instructions fade, compactio
 |---|--------|----------|------|
 | 1 | Anthropic, *Effective Context Engineering for AI Agents* | context rot mechanisms; filesystem as durable memory; prompt-cache discipline | [anthropic.com/engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) |
 | 2 | "Ruthless context resets" / RPI production accounts (2026) | fresh-context discipline at scale; research→plan→implement phases on disk | [linearb.io](https://linearb.io/blog/dex-horthy-humanlayer-rpi-methodology-ralph-loop) |
-| 3 | Companion curricula, `agents/09`, `claude-code/06` | context & cache engineering in depth | [local](../agents/09-context-and-cache-engineering.md) |
+| 3 | Companion curricula, `agents/09`, `claude-code/06` | context & cache engineering in depth | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/09-context-and-cache-engineering.md) |

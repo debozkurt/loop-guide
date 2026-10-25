@@ -79,7 +79,7 @@ def handle_delivery(secret: str, headers: dict, body: bytes) -> tuple[int, str]:
 
 A hook the prompt cannot bypass is stronger than any instruction (Chapter 16); the same logic applies here: a *verified* trigger the attacker cannot forge is stronger than trusting the payload. The verification is structural, not advisory.
 
-> **Production reference — loopkit.** The companion reference tool **[loopkit](https://github.com/debozkurt/loop-kit)** (the runnable form of this manual) implements this production-grade: `triggers.WebhookApp.dispatch` is the same verify → parse → authorize → dedupe → create path, behind both a GitHub (HMAC) and a GitLab (token) provider, fail-closed, with a Redis-backed dedupe for multi-replica listeners and the run bound to the **issue author**. Watch it decide six deliveries (forged → 401, signed → one run, retry + second event → dedup, unlabelled → ignored) with no socket and no tokens:
+> **Production reference — loopkit.** The companion reference tool **[loopkit](https://github.com/debozkurt/loop-kit)** (the runnable form of this manual) implements this in full: `triggers.WebhookApp.dispatch` is the same verify → parse → authorize → dedupe → create path, behind both a GitHub (HMAC) and a GitLab (token) provider, fail-closed, with a Redis-backed dedupe for multi-replica listeners and the run bound to the **issue author**. Watch it decide six deliveries (forged → 401, signed → one run, retry + second event → dedup, unlabelled → ignored) with no socket and no tokens:
 > ```bash
 > loopkit demo 20      # Triggers as infrastructure — the dispatch decision tree, scripted
 > ```

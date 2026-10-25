@@ -95,5 +95,5 @@ Orchestration is loops supervising loops. Four shifts make it new: the loop beco
 | # | Source | Supports | Link |
 |---|--------|----------|------|
 | 1 | Open-source orchestration system "Gas Town" (Jan 2026) | the four shifts; loops-supervising-loops architecture | [github.com/gastownhall/gastown](https://github.com/gastownhall/gastown) |
-| 2 | Companion curriculum, `claude-code/10-worktrees.md`, `claude-code/19` | git-worktree isolation; subagent orchestration topologies | [local](../claude-code/10-worktrees.md) |
+| 2 | Companion curriculum, `claude-code/10-worktrees.md`, `claude-code/19` | git-worktree isolation; subagent orchestration topologies | [claude-intro](https://github.com/debozkurt/claude-intro/blob/master/claude-code-docs/10-worktrees.md) |
 | 3 | Open-source orchestrator survey (2026) | isolation-per-worker as a common pattern (container + worktree + creds) | [augmentcode.com](https://www.augmentcode.com/tools/open-source-agent-orchestrators) |

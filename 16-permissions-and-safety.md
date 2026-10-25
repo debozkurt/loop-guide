@@ -126,4 +126,4 @@ flowchart LR
 |---|--------|----------|------|
 | 1 | "How we built Claude Code auto mode" (Mar 2026) | classifier-gated approvals, tiered allowlisting, "without traditional sandboxing" | [anthropic.com/engineering](https://www.anthropic.com/engineering/claude-code-auto-mode) |
 | 2 | OWASP LLM Top 10; companion `agents/20`, `claude-code/24` | prompt injection against agents reading untrusted content; capability/content separation | [owasp.org](https://owasp.org/www-project-top-10-for-large-language-model-applications/) |
-| 3 | Companion curriculum, `claude-code/07-permission-modes.md` | permission-mode mechanics; sandboxing as a separate control | [local](../claude-code/07-permission-modes.md) |
+| 3 | Companion curriculum, `claude-code/07-permission-modes.md` | permission-mode mechanics; sandboxing as a separate control | [claude-intro](https://github.com/debozkurt/claude-intro/blob/master/claude-code-docs/07-permission-modes.md) |

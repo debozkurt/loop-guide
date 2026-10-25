@@ -90,4 +90,4 @@ Continuous review is the second feedback channel: a background reviewer loop che
 |---|--------|----------|------|
 | 1 | Continuous-review tool ("roborev", Kenn Software, 2026) | post-commit background review, persisted findings, fix→re-review loop. *(Often attributed to an individual in social posts; primary materials credit the org — treat authorship as unconfirmed.)* | [github.com/kenn-io/roborev](https://github.com/kenn-io/roborev) |
 | 2 | "Large Language Models Cannot Self-Correct Reasoning Yet" (ICLR 2024) | why the reviewer must be external to the writer | [arxiv.org/abs/2310.01798](https://arxiv.org/abs/2310.01798) |
-| 3 | Companion curriculum, `agents/23-evals-and-regression-testing.md` | LLM-as-judge fallibility (the reviewer's failure modes) | [local](../agents/23-evals-and-regression-testing.md) |
+| 3 | Companion curriculum, `agents/23-evals-and-regression-testing.md` | LLM-as-judge fallibility (the reviewer's failure modes) | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/23-evals-and-regression-testing.md) |

@@ -126,5 +126,5 @@ flowchart LR
 | # | Source | Supports | Link |
 |---|--------|----------|------|
 | 1 | Yao et al., *ReAct* (2022 / ICLR 2023) | the inner loop: reason→act→observe, model-decided termination, errors as observations | [arxiv.org/abs/2210.03629](https://arxiv.org/abs/2210.03629) |
-| 2 | Companion curriculum, `agents/05-execution-loop.md` | inner-loop mechanics, parallel tool calls, recursion limits in depth | [local](../agents/05-execution-loop.md) |
+| 2 | Companion curriculum, `agents/05-execution-loop.md` | inner-loop mechanics, parallel tool calls, recursion limits in depth | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/05-execution-loop.md) |
 | 3 | "Large Language Models Cannot Self-Correct Reasoning Yet" (ICLR 2024) | why the outer-loop stop must be external, not the model's self-assessment | [arxiv.org/abs/2310.01798](https://arxiv.org/abs/2310.01798) |

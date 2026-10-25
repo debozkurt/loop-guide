@@ -140,7 +140,7 @@ flowchart LR
 |---|--------|----------|------|
 | 1 | *A Survey on Code Generation with LLM-based Agents* (2025) | the generate→verify→repair loop; trajectory framing | [arxiv.org/abs/2508.00083](https://arxiv.org/abs/2508.00083) |
 | 2 | Specification-gaming / reward-hacking literature | satisfying the literal gate while defeating its intent is structural | [arxiv.org/abs/2411.16594](https://arxiv.org/abs/2411.16594) |
-| 3 | Companion curriculum, `agents/23` + LLM-as-judge surveys | golden/trajectory evals; judge biases and mitigations | [local](../agents/23-evals-and-regression-testing.md) |
+| 3 | Companion curriculum, `agents/23` + LLM-as-judge surveys | golden/trajectory evals; judge biases and mitigations | [agent-docs](https://github.com/debozkurt/agent-docs/blob/main/23-evals-and-regression-testing.md) |
 | 4 | "Demystifying evals for AI agents" + τ-bench (2024) | reliability is pass^k (all-of-k), not a single pass; report consistency | [anthropic.com](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) · [arxiv.org/abs/2406.12045](https://arxiv.org/abs/2406.12045) |
 | 5 | EvalPlus / HumanEval+ (NeurIPS 2023); "Are 'Solved Issues' in SWE-bench Really Solved Correctly?" (2025) | strengthening tests drops measured pass rates and reverses rankings; ~half of "solved" agent patches are plausible-but-wrong | [arxiv.org/abs/2305.01210](https://arxiv.org/abs/2305.01210) · [arxiv.org/abs/2503.15223](https://arxiv.org/abs/2503.15223) |
 | 6 | "Goodhart's Law in Reinforcement Learning" (ICLR 2024) | the *regressional* (honest overfit) vs *adversarial* (gaming) forms of proxy optimization | [arxiv.org/abs/2310.09144](https://arxiv.org/abs/2310.09144) |
